@@ -57,7 +57,7 @@ export default function FoodTruck({ className }: { className?: string }) {
       </defs>
 
       {/* light pooling on the ground under the serving hatch */}
-      <ellipse cx="520" cy="430" rx="300" ry="62" fill="url(#ht-spill)" />
+      <ellipse className="truck-spill" cx="520" cy="430" rx="300" ry="62" fill="url(#ht-spill)" />
       <ellipse cx="460" cy="446" rx="360" ry="26" fill="url(#ht-shadow)" />
 
       {/* ---- wheels ------------------------------------------------------ */}
@@ -87,7 +87,7 @@ export default function FoodTruck({ className }: { className?: string }) {
       <path d="M250 258 L250 372" stroke="#7c1208" strokeWidth="3" opacity="0.55" />
       <rect x="222" y="292" width="20" height="6" rx="3" fill="#ffdca6" opacity="0.8" />
       {/* headlight + bumper */}
-      <rect x="62" y="288" width="20" height="30" rx="8" fill="#ffe9bd" />
+      <rect className="truck-headlight" x="62" y="288" width="20" height="30" rx="8" fill="#ffe9bd" />
       <rect x="62" y="288" width="20" height="30" rx="8" fill="#fff" opacity="0.35" />
       <rect x="58" y="352" width="52" height="18" rx="8" fill="url(#ht-chrome)" />
 
@@ -122,7 +122,7 @@ export default function FoodTruck({ className }: { className?: string }) {
       {/* ---- serving window ---------------------------------------------- */}
       <rect x="322" y="164" width="398" height="162" rx="13" fill="#2a1710" />
       <g clipPath="url(#ht-window-clip)">
-        <rect x="330" y="172" width="382" height="146" fill="url(#ht-glow)" />
+        <rect className="truck-glow" x="330" y="172" width="382" height="146" fill="url(#ht-glow)" />
 
         {/* back-wall tiles */}
         <g opacity="0.18" stroke="#3a1c0c" strokeWidth="2">
@@ -141,7 +141,7 @@ export default function FoodTruck({ className }: { className?: string }) {
         <circle cx="660" cy="206" r="7" fill="#fff3d2" />
 
         {/* cook silhouette */}
-        <g fill="#4a1f08" opacity="0.72">
+        <g className="truck-cook" fill="#4a1f08" opacity="0.72">
           <path d="M524 244 q22 0 26 26 l6 48 h-64 l6 -48 q4 -26 26 -26z" />
           <circle cx="524" cy="228" r="17" />
           <path d="M505 216 q19 -16 38 0 q4 -14 -19 -16 q-23 2 -19 16z" fill="#5c2c0a" />
@@ -160,6 +160,29 @@ export default function FoodTruck({ className }: { className?: string }) {
           <rect x="612" y="293" width="72" height="14" rx="5" fill="#b3762f" />
           <rect x="612" y="306" width="72" height="14" rx="5" fill="#9c6526" />
           <ellipse cx="648" cy="278" rx="40" ry="9" fill="#dda45c" />
+        </g>
+
+        {/* a plate of momos being handed down to the counter */}
+        <g className="truck-serve">
+          <ellipse cx="548" cy="262" rx="27" ry="8" fill="#efe0cb" />
+          <ellipse cx="548" cy="259" rx="27" ry="6" fill="#fff6e8" />
+          <g stroke="#a98d68" strokeWidth="1.4">
+            <ellipse cx="537" cy="253" rx="9" ry="7.5" fill="#f7ead8" />
+            <ellipse cx="559" cy="253" rx="9" ry="7.5" fill="#f7ead8" />
+            <ellipse cx="548" cy="247" rx="9" ry="7.5" fill="#f7ead8" />
+          </g>
+        </g>
+
+        {/* the cook's arm, reaching down with the plate */}
+        <g className="truck-arm">
+          <path
+            d="M528 250 q22 4 24 22"
+            fill="none"
+            stroke="#4a1f08"
+            strokeWidth="11"
+            strokeLinecap="round"
+            opacity="0.72"
+          />
         </g>
 
         {/* mojito glasses on the ledge */}
@@ -184,7 +207,7 @@ export default function FoodTruck({ className }: { className?: string }) {
       <rect x="306" y="320" width="430" height="6" rx="3" fill="#fff" opacity="0.5" />
 
       {/* ---- awning ------------------------------------------------------ */}
-      <g>
+      <g className="truck-awning">
         <path d="M296 112 H746 L730 160 H312 Z" fill="#f7ece0" />
         {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
           <path
@@ -201,7 +224,7 @@ export default function FoodTruck({ className }: { className?: string }) {
       </g>
 
       {/* ---- roof sign --------------------------------------------------- */}
-      <g>
+      <g className="truck-sign">
         <rect x="470" y="98" width="12" height="26" fill="#7c1208" />
         <rect x="640" y="98" width="12" height="26" fill="#7c1208" />
         <rect x="418" y="44" width="286" height="58" rx="15" fill="url(#ht-sign)" />

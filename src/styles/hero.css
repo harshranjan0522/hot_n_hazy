@@ -7,6 +7,12 @@
 .hero {
   position: relative;
   min-height: 100svh;
+}
+
+/* Holds the parallax layers. Not sticky on purpose — see Hero.tsx. */
+.hero__stage {
+  position: relative;
+  height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -231,16 +237,217 @@
   height: clamp(210px, 44vh, 450px);
   translate: -50% 0;
   pointer-events: none;
-  will-change: transform;
+  will-change: transform, opacity;
 }
+.hero__truck-lean,
 .hero__truck-inner {
   position: relative;
   height: 100%;
+}
+
+/* Closes over the hero in the colour the next section starts with, so the
+   background reads as one continuous move rather than a cut. */
+.hero__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  background: var(--ink);
 }
 .hero__truck-svg {
   height: 100%;
   width: auto;
   filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.65));
+  /* parked but running — a slow rock with a faster engine shudder on top */
+  animation: truck-idle 6.5s ease-in-out infinite, truck-shudder 0.42s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+
+@keyframes truck-idle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  35% {
+    transform: translateY(-6px) rotate(-0.45deg);
+  }
+  70% {
+    transform: translateY(-2px) rotate(0.35deg);
+  }
+}
+@keyframes truck-shudder {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 0.9px;
+  }
+}
+
+/* every SVG part animates about its own box, not the whole 900x500 canvas */
+.truck-awning,
+.truck-sign,
+.truck-glow,
+.truck-spill,
+.truck-headlight,
+.truck-cook {
+  transform-box: fill-box;
+}
+
+.truck-awning {
+  transform-origin: 50% 0%;
+  animation: awning-sway 5.2s ease-in-out infinite;
+}
+@keyframes awning-sway {
+  0%,
+  100% {
+    transform: rotate(0deg) scaleY(1);
+  }
+  30% {
+    transform: rotate(0.9deg) scaleY(1.03);
+  }
+  65% {
+    transform: rotate(-0.7deg) scaleY(0.985);
+  }
+}
+
+.truck-sign {
+  transform-origin: 50% 100%;
+  animation: sign-breathe 4.6s ease-in-out infinite;
+}
+@keyframes sign-breathe {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 4px rgba(255, 90, 31, 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(255, 138, 11, 0.95));
+  }
+}
+
+/* the kitchen light rises and falls as the burners work */
+.truck-glow {
+  transform-origin: 50% 100%;
+  animation: kitchen-glow 3.8s ease-in-out infinite;
+}
+@keyframes kitchen-glow {
+  0%,
+  100% {
+    opacity: 0.86;
+  }
+  45% {
+    opacity: 1;
+  }
+}
+.truck-spill {
+  animation: spill-glow 3.8s ease-in-out infinite;
+}
+@keyframes spill-glow {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scaleX(1);
+  }
+  45% {
+    opacity: 1;
+    transform: scaleX(1.05);
+  }
+}
+
+.truck-headlight {
+  animation: headlight-pulse 4.2s ease-in-out infinite;
+}
+@keyframes headlight-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* cook working, and the plate he hands down — one shared 4.2s cycle so the
+   lean and the hand-off read as the same movement */
+.truck-cook {
+  transform-origin: 50% 100%;
+  animation: cook-work 4.2s ease-in-out infinite;
+}
+@keyframes cook-work {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  28% {
+    transform: translateX(3px) rotate(1.6deg);
+  }
+  60% {
+    transform: translateX(1px) rotate(0.5deg);
+  }
+}
+
+.truck-serve,
+.truck-arm {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+.truck-serve {
+  animation: serve-plate 4.2s ease-in-out infinite;
+}
+@keyframes serve-plate {
+  0% {
+    opacity: 0;
+    transform: translate(0, -14px) scale(0.75);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(0, -6px) scale(0.92);
+  }
+  46% {
+    opacity: 1;
+    transform: translate(-10px, 40px) scale(1);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-12px, 44px) scale(1);
+  }
+  88% {
+    opacity: 0;
+    transform: translate(-16px, 52px) scale(0.96);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, -14px) scale(0.75);
+  }
+}
+
+/* the arm follows the plate down, then tucks back */
+.truck-arm {
+  animation: serve-arm 4.2s ease-in-out infinite;
+}
+@keyframes serve-arm {
+  0%,
+  100% {
+    opacity: 0;
+    transform: rotate(-16deg);
+  }
+  18% {
+    opacity: 1;
+    transform: rotate(-6deg);
+  }
+  50% {
+    opacity: 1;
+    transform: rotate(9deg);
+  }
+  76% {
+    opacity: 1;
+    transform: rotate(7deg);
+  }
+  92% {
+    opacity: 0;
+    transform: rotate(-10deg);
+  }
 }
 
 .truck-bulb {
@@ -260,24 +467,25 @@
 
 .hero__steam {
   position: absolute;
-  width: 12%;
+  width: 15%;
   height: auto;
   pointer-events: none;
+  opacity: 0.9;
 }
 .hero__steam--a {
-  left: 36%;
+  left: 34%;
   bottom: 46%;
 }
 .hero__steam--b {
-  left: 65%;
+  left: 64%;
   bottom: 48%;
   transform: scaleX(-1);
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 .steam-wisp {
   stroke-dasharray: 220;
-  animation: steam-rise 4.4s linear infinite;
+  animation: steam-rise 3.4s linear infinite;
 }
 @keyframes steam-rise {
   0% {
@@ -306,7 +514,25 @@
 .hero__floater {
   position: absolute;
   display: block;
-  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.5));
+  will-change: transform;
+}
+.hero__floater-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.55));
+}
+/* a wisp trailing off the bigger momos */
+.hero__floater-steam {
+  position: absolute;
+  left: 50%;
+  bottom: 62%;
+  width: 58%;
+  height: auto;
+  translate: -50% 0;
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .hero__floor {
@@ -377,7 +603,7 @@
 @media (max-width: 720px) {
   /* Content sits high and the truck owns the bottom third — centring the
      content drops it straight onto the truck's roof sign. */
-  .hero {
+  .hero__stage {
     justify-content: flex-start;
     padding-top: 6.5rem;
   }
@@ -411,9 +637,15 @@
     max-width: 30rem;
     font-size: 0.92rem;
   }
-  /* These two land on the tagline and buttons at phone widths. */
+  /* Keep only the edge momos on phones — the rest land on the copy.
+     1, 2, 7 and 8 hug the left/right margins; 3-6 sit over the text. */
   .hero__floater:nth-child(3),
-  .hero__floater:nth-child(4) {
+  .hero__floater:nth-child(4),
+  .hero__floater:nth-child(5),
+  .hero__floater:nth-child(6) {
+    display: none;
+  }
+  .hero__floater-steam {
     display: none;
   }
   .hero__steam {

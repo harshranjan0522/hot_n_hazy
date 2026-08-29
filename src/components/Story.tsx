@@ -1,7 +1,8 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform, useReducedMotion } from 'motion/react'
 import Reveal from './Reveal'
-import Momo from './Momo'
+import FoodTruck from './FoodTruck'
+import Customers from './Customers'
 import { business, ratings } from '../content'
 
 export default function Story() {
@@ -12,8 +13,7 @@ export default function Story() {
     offset: ['start end', 'end start'],
   })
 
-  const plateY = useTransform(scrollYProgress, [0, 1], [80, -80])
-  const plateRotate = useTransform(scrollYProgress, [0, 1], [-8, 8])
+  const plateY = useTransform(scrollYProgress, [0, 1], [70, -70])
 
   return (
     <section className="section story" id="story" ref={ref}>
@@ -60,16 +60,14 @@ export default function Story() {
 
         <div className="story__art" aria-hidden="true">
           <motion.div
-            className="story__plate"
-            style={{ y: reduced ? 0 : plateY, rotate: reduced ? 0 : plateRotate }}
+            className="story__scene"
+            style={{ y: reduced ? 0 : plateY }}
           >
-            <span className="story__ring" />
-            <span className="story__ring story__ring--two" />
-            <div className="story__momos">
-              <Momo className="story__momo story__momo--a" />
-              <Momo className="story__momo story__momo--b" tone="fried" />
-              <Momo className="story__momo story__momo--c" />
-            </div>
+            <span className="story__scene-glow" />
+            {/* customers layer on top of the truck — same 900x500 grid, so the
+                counter and ground lines line up between the two drawings */}
+            <FoodTruck className="story__scene-truck" />
+            <Customers className="story__scene-people" />
           </motion.div>
           <p className="story__hand">made fresh, every evening</p>
         </div>

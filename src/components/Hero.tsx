@@ -5,6 +5,7 @@ import {
   useSpring,
   useTransform,
   useMotionValue,
+  useMotionTemplate,
   useReducedMotion,
   type MotionValue,
 } from 'motion/react'
@@ -14,14 +15,92 @@ import Skyline from './Skyline'
 import Steam from './Steam'
 import Momo from './Momo'
 
-/** Momos that drift across the hero. Positions are % of the hero box. */
+/**
+ * Momos drifting across the hero. `depth` drives everything about how a momo
+ * behaves: bigger depth = nearer the viewer = travels further and faster on
+ * scroll, and bobs harder. Positions are % of the hero box.
+ */
 const floaters = [
-  { left: '7%', top: '26%', size: 78, depth: 1.7, tone: 'pale', spin: -14 },
-  { left: '86%', top: '18%', size: 62, depth: 2.4, tone: 'fried', spin: 18 },
-  { left: '18%', top: '62%', size: 52, depth: 3.1, tone: 'fried', spin: 24 },
-  { left: '78%', top: '58%', size: 88, depth: 1.3, tone: 'pale', spin: -20 },
-  { left: '68%', top: '9%', size: 44, depth: 2.8, tone: 'pale', spin: 10 },
+  { left: '6%', top: '24%', size: 84, depth: 1.9, tone: 'pale', spin: -14, steam: true },
+  { left: '87%', top: '15%', size: 60, depth: 2.5, tone: 'fried', spin: 18, steam: false },
+  { left: '14%', top: '64%', size: 50, depth: 3.1, tone: 'fried', spin: 26, steam: false },
+  { left: '79%', top: '57%', size: 92, depth: 1.2, tone: 'pale', spin: -20, steam: true },
+  { left: '68%', top: '8%', size: 42, depth: 2.8, tone: 'pale', spin: 10, steam: false },
+  { left: '30%', top: '9%', size: 34, depth: 3.5, tone: 'fried', spin: -28, steam: false },
+  { left: '93%', top: '40%', size: 46, depth: 2.1, tone: 'pale', spin: 15, steam: false },
+  { left: '2%', top: '47%', size: 38, depth: 2.7, tone: 'fried', spin: -18, steam: false },
 ] as const
+
+type FloaterCfg = (typeof floaters)[number]
+
+/**
+ * One drifting momo. Two nested elements on purpose: the outer one carries the
+ * scroll-linked parallax (`style`), the inner one the endless idle drift
+ * (`animate`). Putting both on one element would make them fight over `y`.
+ */
+function Floater({
+  cfg,
+  index,
+  progress,
+  reduced,
+}: {
+  cfg: FloaterCfg
+  index: number
+  progress: MotionValue<number>
+  reduced: boolean | null
+}) {
+  // Nearer momos rush past faster — that difference is the parallax.
+  const y = useTransform(progress, [0, 1], [0, -190 * cfg.depth])
+  const x = useTransform(progress, [0, 1], [0, cfg.spin * 2.4])
+  const spin = useTransform(progress, [0, 1], [cfg.spin, cfg.spin + cfg.spin * 3.5])
+  const scale = useTransform(progress, [0, 1], [1, 1 + cfg.depth * 0.14])
+
+  const drift = 12 + cfg.depth * 9
+  const period = 5.5 + cfg.depth * 1.4
+
+  return (
+    <motion.span
+      className="hero__floater"
+      style={{
+        left: cfg.left,
+        top: cfg.top,
+        width: cfg.size,
+        height: cfg.size,
+        ...(reduced ? {} : { y, x, rotate: spin, scale }),
+      }}
+      initial={{ opacity: 0, scale: 0.3 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        delay: 0.7 + index * 0.08,
+        duration: 0.8,
+        ease: [0.34, 1.56, 0.64, 1],
+      }}
+    >
+      <motion.span
+        className="hero__floater-inner"
+        animate={
+          reduced
+            ? {}
+            : {
+                y: [0, -drift, 4, -drift * 0.6, 0],
+                x: [0, drift * 0.4, -drift * 0.3, 0],
+                rotate: [0, 9, -7, 4, 0],
+                scale: [1, 1.06, 0.97, 1.03, 1],
+              }
+        }
+        transition={{
+          duration: period,
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: index * 0.35,
+        }}
+      >
+        <Momo tone={cfg.tone} />
+        {cfg.steam && <Steam className="hero__floater-steam" />}
+      </motion.span>
+    </motion.span>
+  )
+}
 
 /** Multiplies a scroll-progress value into a pixel offset. */
 function useParallax(progress: MotionValue<number>, distance: number) {
@@ -32,23 +111,37 @@ export default function Hero() {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
 
+  // 0 -> 1 as the hero scrolls out of view. Deliberately NOT a pinned/sticky
+  // stage: a sticky stage needs a whole extra viewport to clear itself, and
+  // that stretch shows up as an empty page after the truck has faded.
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ['start start', 'end start'],
   })
 
   // Back layers drift down slowly, front layers rush up — the further forward,
-  // the bigger the number.
-  const skyY = useParallax(scrollYProgress, 140)
-  const skylineY = useParallax(scrollYProgress, 70)
-  const hazeY = useParallax(scrollYProgress, -70)
-  const titleY = useParallax(scrollYProgress, -260)
-  const truckY = useParallax(scrollYProgress, -90)
-  const floatY = useParallax(scrollYProgress, -380)
+  // the bigger the number. The spread between these numbers IS the parallax,
+  // so they are deliberately far apart.
+  const skyY = useParallax(scrollYProgress, 300)
+  const skylineY = useParallax(scrollYProgress, 150)
+  const hazeY = useParallax(scrollYProgress, -120)
+  const titleY = useParallax(scrollYProgress, -460)
+  const truckY = useParallax(scrollYProgress, -120)
 
-  const titleScale = useTransform(scrollYProgress, [0, 1], [1, 1.18])
-  const titleOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0])
-  const truckScale = useTransform(scrollYProgress, [0, 1], [1, 1.1])
+  const skyScale = useTransform(scrollYProgress, [0, 1], [1, 1.14])
+  const skylineScale = useTransform(scrollYProgress, [0, 1], [1, 1.08])
+  const titleScale = useTransform(scrollYProgress, [0, 1], [1, 1.32])
+  const titleOpacity = useTransform(scrollYProgress, [0, 0.42], [1, 0])
+  // The truck simply drives off to the left as the hero scrolls away — no
+  // zoom. A short hold first so it reads as parked, then it pulls out, picks up
+  // a little motion blur, and is gone well before the hero is, so no empty
+  // stretch is ever on screen. The veil carries the background into the flat
+  // ink the next section starts on.
+  const truckExitX = useTransform(scrollYProgress, [0, 0.1, 0.85], ['0%', '0%', '-190%'])
+  const truckOpacity = useTransform(scrollYProgress, [0, 0.6, 0.85], [1, 1, 0])
+  const truckBlur = useTransform(scrollYProgress, [0.25, 0.85], [0, 7])
+  const truckFilter = useMotionTemplate`blur(${truckBlur}px)`
+  const veilOpacity = useTransform(scrollYProgress, [0.5, 0.95], [0, 1])
 
   // Pointer parallax — a few degrees of lean that follows the cursor.
   const pointerX = useMotionValue(0)
@@ -72,15 +165,18 @@ export default function Hero() {
   }
 
   return (
-    <section
-      id="top"
-      ref={ref}
-      className="hero"
-      onPointerMove={handlePointer}
-      onPointerLeave={resetPointer}
-    >
+    <section id="top" ref={ref} className="hero">
+      <div
+        className="hero__stage"
+        onPointerMove={handlePointer}
+        onPointerLeave={resetPointer}
+      >
       {/* ---- back layers ------------------------------------------------ */}
-      <motion.div className="hero__sky" style={{ y: reduced ? 0 : skyY }} aria-hidden="true" />
+      <motion.div
+        className="hero__sky"
+        style={reduced ? undefined : { y: skyY, scale: skyScale }}
+        aria-hidden="true"
+      />
       <div className="hero__vignette" aria-hidden="true" />
 
       <motion.div className="hero__haze" style={{ y: reduced ? 0 : hazeY }} aria-hidden="true">
@@ -91,7 +187,7 @@ export default function Hero() {
 
       <motion.div
         className="hero__skyline"
-        style={{ y: reduced ? 0 : skylineY }}
+        style={reduced ? undefined : { y: skylineY, scale: skylineScale }}
         aria-hidden="true"
       >
         <Skyline className="hero__skyline-svg" />
@@ -179,51 +275,52 @@ export default function Hero() {
       {/* ---- truck + foreground ----------------------------------------- */}
       <motion.div
         className="hero__truck"
-        style={{
-          y: reduced ? 0 : truckY,
-          scale: reduced ? 1 : truckScale,
-          x: reduced ? 0 : truckLeanX,
-        }}
+        style={
+          reduced
+            ? undefined
+            : {
+                x: truckExitX,
+                y: truckY,
+                opacity: truckOpacity,
+                filter: truckFilter,
+              }
+        }
       >
+        {/* pointer lean lives on its own layer so it never fights the exit */}
         <motion.div
-          className="hero__truck-inner"
-          initial={{ opacity: 0, x: -140 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.35, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-          style={{ y: reduced ? 0 : truckLeanY }}
+          className="hero__truck-lean"
+          style={reduced ? undefined : { x: truckLeanX, y: truckLeanY }}
         >
-          <FoodTruck className="hero__truck-svg" />
-          <Steam className="hero__steam hero__steam--a" />
-          <Steam className="hero__steam hero__steam--b" />
+          <motion.div
+            className="hero__truck-inner"
+            /* drives in from the right, overshoots slightly, then settles */
+            initial={{ opacity: 0, x: '118%' }}
+            animate={{ opacity: 1, x: ['118%', '-2.5%', '0%'] }}
+            transition={{
+              opacity: { delay: 0.3, duration: 0.5 },
+              x: { delay: 0.3, duration: 1.9, times: [0, 0.78, 1], ease: [0.16, 1, 0.3, 1] },
+            }}
+          >
+            <FoodTruck className="hero__truck-svg" />
+            <Steam className="hero__steam hero__steam--a" />
+            <Steam className="hero__steam hero__steam--b" />
+          </motion.div>
         </motion.div>
       </motion.div>
 
-      <motion.div className="hero__floaters" style={{ y: reduced ? 0 : floatY }} aria-hidden="true">
+      <div className="hero__floaters" aria-hidden="true">
         {floaters.map((f, i) => (
-          <motion.span
-            key={i}
-            className="hero__floater"
-            style={{ left: f.left, top: f.top, width: f.size, height: f.size }}
-            initial={{ opacity: 0, scale: 0.4 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: reduced ? 0 : [0, -18, 0],
-              rotate: reduced ? f.spin : [f.spin, f.spin + 12, f.spin],
-            }}
-            transition={{
-              opacity: { delay: 0.7 + i * 0.1, duration: 0.7 },
-              scale: { delay: 0.7 + i * 0.1, duration: 0.7, ease: [0.34, 1.56, 0.64, 1] },
-              y: { duration: 4 + f.depth, repeat: Infinity, ease: 'easeInOut' },
-              rotate: { duration: 6 + f.depth, repeat: Infinity, ease: 'easeInOut' },
-            }}
-          >
-            <Momo tone={f.tone} />
-          </motion.span>
+          <Floater key={i} cfg={f} index={i} progress={scrollYProgress} reduced={reduced} />
         ))}
-      </motion.div>
+      </div>
 
       <div className="hero__floor" aria-hidden="true" />
+
+      <motion.div
+        className="hero__veil"
+        style={{ opacity: reduced ? 0 : veilOpacity }}
+        aria-hidden="true"
+      />
 
       <motion.a
         className="hero__scroll"
@@ -238,6 +335,7 @@ export default function Hero() {
           <span className="hero__scroll-dot" />
         </span>
       </motion.a>
+      </div>
     </section>
   )
 }
