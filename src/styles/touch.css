@@ -1,0 +1,54 @@
+/* ==========================================================================
+   Touch devices — per-frame cost reductions
+   Imported LAST on purpose. Every rule here overrides one of equal specificity
+   in hero.css or sections.css, so source order is what makes it win; moving
+   this import up the list would silently disable the file.
+
+   Each of these is a cost the browser pays on every frame it composites, which
+   a desktop GPU absorbs and a phone does not. The art is built so each one
+   degrades to a flat colour rather than disappearing.
+   ========================================================================== */
+
+@media (pointer: coarse) {
+  /* Sampling and re-blurring the backdrop under a fixed bar happens on every
+     scroll frame. These backgrounds are near-opaque anyway, so the blur is
+     doing almost no visible work. */
+  .nav--solid,
+  .hero__eyebrow,
+  .btn--ghost,
+  .sheet {
+    backdrop-filter: none;
+  }
+  .nav--solid {
+    background: rgba(11, 7, 5, 0.94);
+  }
+  .hero__eyebrow {
+    background: rgba(11, 7, 5, 0.82);
+  }
+  .btn--ghost {
+    background: rgba(40, 24, 17, 0.72);
+  }
+
+  /* A 70px blur over three blobs that never stop moving can never be cached,
+     so it re-renders forever. Half the radius, and hold the blobs still — at
+     this blur radius the drift is not readable on a phone screen anyway. */
+  .hero__haze {
+    filter: blur(36px);
+    opacity: 0.55;
+  }
+  .hero__blob {
+    animation: none;
+    will-change: auto;
+  }
+
+  /* A 0.42s shudder on an SVG carrying a 50px drop-shadow repaints the truck
+     roughly 140 times a second. Keep the slow idle rock, which reads the same
+     at arm's length, and lighten the shadow it has to redraw. */
+  .hero__truck-svg {
+    animation: truck-idle 6.5s ease-in-out infinite;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.6));
+  }
+  .hero__floater-inner {
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.5));
+  }
+}

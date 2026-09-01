@@ -10,25 +10,30 @@ import {
   type MotionValue,
 } from 'motion/react'
 import FoodTruck from './FoodTruck'
-import Logo from './Logo'
 import Skyline from './Skyline'
 import Steam from './Steam'
 import Momo from './Momo'
+import { useCoarsePointer, useNarrowScreen } from '../lib/useMediaQuery'
 
 /**
  * Momos drifting across the hero. `depth` drives everything about how a momo
  * behaves: bigger depth = nearer the viewer = travels further and faster on
  * scroll, and bobs harder. Positions are % of the hero box.
+ *
+ * `edge` marks the four that hug the left/right margins. Only those are built
+ * below the 720px breakpoint — the rest land on the copy at that width. They
+ * used to be hidden in CSS, which still paid for four scroll-linked
+ * transforms apiece on momos nobody could see.
  */
 const floaters = [
-  { left: '6%', top: '24%', size: 84, depth: 1.9, tone: 'pale', spin: -14, steam: true },
-  { left: '87%', top: '15%', size: 60, depth: 2.5, tone: 'fried', spin: 18, steam: false },
-  { left: '14%', top: '64%', size: 50, depth: 3.1, tone: 'fried', spin: 26, steam: false },
-  { left: '79%', top: '57%', size: 92, depth: 1.2, tone: 'pale', spin: -20, steam: true },
-  { left: '68%', top: '8%', size: 42, depth: 2.8, tone: 'pale', spin: 10, steam: false },
-  { left: '30%', top: '9%', size: 34, depth: 3.5, tone: 'fried', spin: -28, steam: false },
-  { left: '93%', top: '40%', size: 46, depth: 2.1, tone: 'pale', spin: 15, steam: false },
-  { left: '2%', top: '47%', size: 38, depth: 2.7, tone: 'fried', spin: -18, steam: false },
+  { left: '6%', top: '24%', size: 84, depth: 1.9, tone: 'pale', spin: -14, steam: true, edge: true },
+  { left: '87%', top: '15%', size: 60, depth: 2.5, tone: 'fried', spin: 18, steam: false, edge: true },
+  { left: '14%', top: '64%', size: 50, depth: 3.1, tone: 'fried', spin: 26, steam: false, edge: false },
+  { left: '79%', top: '57%', size: 92, depth: 1.2, tone: 'pale', spin: -20, steam: true, edge: false },
+  { left: '68%', top: '8%', size: 42, depth: 2.8, tone: 'pale', spin: 10, steam: false, edge: false },
+  { left: '30%', top: '9%', size: 34, depth: 3.5, tone: 'fried', spin: -28, steam: false, edge: false },
+  { left: '93%', top: '40%', size: 46, depth: 2.1, tone: 'pale', spin: 15, steam: false, edge: true },
+  { left: '2%', top: '47%', size: 38, depth: 2.7, tone: 'fried', spin: -18, steam: false, edge: true },
 ] as const
 
 type FloaterCfg = (typeof floaters)[number]
@@ -110,6 +115,9 @@ function useParallax(progress: MotionValue<number>, distance: number) {
 export default function Hero() {
   const ref = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
+  const coarse = useCoarsePointer()
+  const narrow = useNarrowScreen()
+  const visibleFloaters = narrow ? floaters.filter((f) => f.edge) : floaters
 
   // 0 -> 1 as the hero scrolls out of view. Deliberately NOT a pinned/sticky
   // stage: a sticky stage needs a whole extra viewport to clear itself, and
@@ -168,8 +176,9 @@ export default function Hero() {
     <section id="top" ref={ref} className="hero">
       <div
         className="hero__stage"
-        onPointerMove={handlePointer}
-        onPointerLeave={resetPointer}
+        data-anim
+        onPointerMove={coarse ? undefined : handlePointer}
+        onPointerLeave={coarse ? undefined : resetPointer}
       >
       {/* ---- back layers ------------------------------------------------ */}
       <motion.div
@@ -215,24 +224,26 @@ export default function Hero() {
 
         <h1 className="hero__title">
           <span className="sr-only">Hot n Hazy</span>
-          <motion.span
-            className="hero__line"
-            aria-hidden="true"
-            initial={{ opacity: 0, y: 90, rotate: -3 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            transition={{ delay: 0.25, duration: 1, ease: [0.16, 1, 0.3, 1] }}
-          >
-            Hot
-          </motion.span>
-          <motion.span
-            className="hero__amp"
-            aria-hidden="true"
-            initial={{ opacity: 0, scale: 0.3, rotate: -40 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ delay: 0.62, duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
-          >
-            <Logo withText={false} idPrefix="hero-amp" />
-          </motion.span>
+          {/* "Hot" and its tick share a box so the N' can hang off the word's
+              own right edge rather than the centre of the whole headline. */}
+          <span className="hero__word" aria-hidden="true">
+            <motion.span
+              className="hero__line"
+              initial={{ opacity: 0, y: 90, rotate: -3 }}
+              animate={{ opacity: 1, y: 0, rotate: 0 }}
+              transition={{ delay: 0.25, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              Hot
+            </motion.span>
+            <motion.span
+              className="hero__tick"
+              initial={{ opacity: 0, scale: 0.4, rotate: -25 }}
+              animate={{ opacity: 1, scale: 1, rotate: -6 }}
+              transition={{ delay: 0.62, duration: 0.8, ease: [0.34, 1.56, 0.64, 1] }}
+            >
+              N&apos;
+            </motion.span>
+          </span>
           <motion.span
             className="hero__line hero__line--flame"
             aria-hidden="true"
@@ -282,7 +293,7 @@ export default function Hero() {
                 x: truckExitX,
                 y: truckY,
                 opacity: truckOpacity,
-                filter: truckFilter,
+                ...(coarse ? {} : { filter: truckFilter }),
               }
         }
       >
@@ -309,7 +320,7 @@ export default function Hero() {
       </motion.div>
 
       <div className="hero__floaters" aria-hidden="true">
-        {floaters.map((f, i) => (
+        {visibleFloaters.map((f, i) => (
           <Floater key={i} cfg={f} index={i} progress={scrollYProgress} reduced={reduced} />
         ))}
       </div>

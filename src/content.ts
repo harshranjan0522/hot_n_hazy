@@ -4,6 +4,8 @@
  * not a claim.
  */
 
+import type { DishVariant } from './components/DishArt'
+
 /* --- verified listing details ------------------------------------------- */
 export const business = {
   name: "Hot n' Hazy",
@@ -47,6 +49,8 @@ export type MenuItem = {
   heat: 0 | 1 | 2 | 3
   tag?: string
   price?: string
+  /** Which drawing the card shows. Falls back to a plain momo when unset. */
+  art?: DishVariant
 }
 
 export type MenuCategory = {
@@ -64,39 +68,46 @@ export const menu: MenuCategory[] = [
     items: [
       {
         name: 'Steamed momos',
+        art: 'steamed',
         blurb: 'Thin skin, juicy filling, straight out of the basket. The one every review starts with.',
         heat: 0,
         tag: 'Most loved',
       },
       {
         name: 'Fried momos',
+        art: 'fried',
         blurb: 'Same parcels, dropped in hot oil until the pleats go golden and crisp at the edges.',
         heat: 1,
       },
       {
         name: 'Kurkure momos',
+        art: 'kurkure',
         blurb: 'Crumb-coated and deep fried — the crunch you can hear from the next table.',
         heat: 1,
         tag: 'Regulars order this',
       },
       {
         name: 'Afghani momos',
+        art: 'afghani',
         blurb: 'Creamy, smoky, mildly spiced gravy clinging to every fold.',
         heat: 1,
         tag: 'Top rated',
       },
       {
         name: 'Tandoori momos',
+        art: 'tandoori',
         blurb: 'Marinated, skewered and charred over the tandoor until the edges blister.',
         heat: 2,
       },
       {
         name: 'Chilli momos',
+        art: 'chilli',
         blurb: 'Tossed in a glossy, garlicky chilli sauce. This is where the "hot" comes from.',
         heat: 3,
       },
       {
         name: 'Peri peri momos',
+        art: 'peri',
         blurb: 'Dusted heavy with peri peri — tangy, salty and properly fiery.',
         heat: 3,
         tag: 'Top rated',
@@ -110,21 +121,25 @@ export const menu: MenuCategory[] = [
     items: [
       {
         name: 'Classic virgin mojito',
+        art: 'mojito-classic',
         blurb: 'Lime, mint, soda, crushed ice. The standard reset button between plates.',
         heat: 0,
       },
       {
         name: 'Green apple mojito',
+        art: 'mojito-apple',
         blurb: 'Sharp and sweet, built on the same mint-and-lime base.',
         heat: 0,
       },
       {
         name: 'Blue lagoon',
+        art: 'mojito-lagoon',
         blurb: 'Citrus and blue curaçao syrup over ice — the one that shows up in everyone’s photos.',
         heat: 0,
       },
       {
         name: 'Watermelon cooler',
+        art: 'mojito-melon',
         blurb: 'Fresh watermelon, lime and a pinch of black salt.',
         heat: 0,
       },
@@ -137,16 +152,19 @@ export const menu: MenuCategory[] = [
     items: [
       {
         name: 'Salted fries',
+        art: 'fries-salted',
         blurb: 'Cut thick, fried twice, salted while still steaming.',
         heat: 0,
       },
       {
         name: 'Peri peri fries',
+        art: 'fries-peri',
         blurb: 'Tossed hot in peri peri masala so it actually sticks.',
         heat: 2,
       },
       {
         name: 'Loaded cheese fries',
+        art: 'fries-cheese',
         blurb: 'Molten cheese, herbs and a scatter of chilli flakes over the whole basket.',
         heat: 1,
       },
@@ -159,16 +177,19 @@ export const menu: MenuCategory[] = [
     items: [
       {
         name: 'Veg burger',
+        art: 'burger-veg',
         blurb: 'Crisp patty, fresh veg, house sauce in a toasted bun.',
         heat: 0,
       },
       {
         name: 'Cheese burst burger',
+        art: 'burger-cheese',
         blurb: 'Double cheese, griddled until it runs down the side.',
         heat: 0,
       },
       {
         name: 'Spicy hazy burger',
+        art: 'burger-spicy',
         blurb: 'Our chilli sauce, jalapeños and extra crunch. Order a mojito with it.',
         heat: 3,
         tag: 'House special',

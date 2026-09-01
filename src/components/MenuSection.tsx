@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { AnimatePresence, motion, LayoutGroup } from 'motion/react'
 import Reveal from './Reveal'
-import Momo from './Momo'
+import DishArt from './DishArt'
 import { menu, business } from '../content'
 
 /** Renders 0–3 chillies for an item's heat level. */
@@ -24,7 +24,10 @@ export default function MenuSection() {
   const category = menu.find((c) => c.id === active) ?? menu[0]
 
   return (
-    <section className="section menu" id="menu">
+    /* data-anim parks the dish art off screen — it sits on the section, not
+       the list, because the list is remounted on every tab switch and would
+       drop out of the observer. */
+    <section className="section menu" id="menu" data-anim>
       <div className="shell">
         <div className="menu__head">
           <div>
@@ -97,7 +100,7 @@ export default function MenuSection() {
                   whileHover={{ y: -6 }}
                 >
                   <div className="dish__art" aria-hidden="true">
-                    <Momo tone={item.heat >= 2 ? 'fried' : 'pale'} />
+                    <DishArt variant={item.art ?? (item.heat >= 2 ? 'fried' : 'steamed')} />
                   </div>
                   <div className="dish__text">
                     <h3 className="dish__name">

@@ -58,7 +58,7 @@ export default function Story() {
           </div>
         </div>
 
-        <div className="story__art" aria-hidden="true">
+        <div className="story__art" aria-hidden="true" data-anim>
           <motion.div
             className="story__scene"
             style={{ y: reduced ? 0 : plateY }}

@@ -1,0 +1,384 @@
+/* ==========================================================================
+   Menu dish art — the momo and the heat coming off it.
+   Every animation here is CSS on an SVG child so the menu list, which can run
+   seven of these at once, never touches the main thread. `.is-parked` (set by
+   usePauseOffscreen) freezes the lot once the section scrolls away.
+   ========================================================================== */
+
+.dish-art {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.dish-art__item,
+.dish-art__fx {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* The heat layer sits above the momo and reaches up out of the art box —
+   only as far as the card's own padding, so nothing is clipped. */
+.dish-art__fx {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* Lit from behind so the hot variants glow a little against the dark card. */
+.dish-art::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: 130%;
+  height: 130%;
+  translate: -50% -50%;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.4s var(--ease-out);
+  pointer-events: none;
+}
+.dish-art--tandoori::after,
+.dish-art--chilli::after,
+.dish-art--peri::after {
+  background: radial-gradient(circle, rgba(255, 90, 30, 0.42), transparent 68%);
+  opacity: 1;
+  animation: dish-glow 2.8s ease-in-out infinite;
+}
+.dish-art--fried::after,
+.dish-art--kurkure::after,
+.dish-art--fries-salted::after,
+.dish-art--fries-cheese::after,
+.dish-art--burger-cheese::after {
+  background: radial-gradient(circle, rgba(255, 180, 61, 0.26), transparent 70%);
+  opacity: 1;
+  animation: dish-glow 4s ease-in-out infinite;
+}
+.dish-art--fries-peri::after,
+.dish-art--burger-spicy::after {
+  background: radial-gradient(circle, rgba(255, 90, 30, 0.4), transparent 68%);
+  opacity: 1;
+  animation: dish-glow 3s ease-in-out infinite;
+}
+/* the cold half gets the same trick in the opposite direction */
+.dish-art--cold::after {
+  background: radial-gradient(circle, rgba(120, 210, 255, 0.24), transparent 68%);
+  opacity: 1;
+  animation: dish-glow 5s ease-in-out infinite;
+}
+@keyframes dish-glow {
+  0%,
+  100% {
+    opacity: 0.55;
+    scale: 0.94;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.06;
+  }
+}
+
+/* ---- rising heat ------------------------------------------------------- */
+
+/* Drawn on with dash-offset so each wisp appears to be forming as it climbs. */
+.fx-steam,
+.fx-smoke,
+.fx-lazy {
+  stroke-dasharray: 90;
+}
+.fx-steam {
+  animation: wisp-rise 3.6s linear infinite;
+}
+/* fryer smoke is quicker and travels further */
+.fx-smoke {
+  animation: wisp-rise 2.6s linear infinite;
+}
+/* afghani smoke just hangs about */
+.fx-lazy {
+  animation: wisp-lazy 5.4s ease-in-out infinite;
+}
+
+@keyframes wisp-rise {
+  0% {
+    stroke-dashoffset: 90;
+    opacity: 0;
+    transform: translateY(4px) scaleX(0.85);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -90;
+    opacity: 0;
+    transform: translateY(-16px) scaleX(1.2);
+  }
+}
+@keyframes wisp-lazy {
+  0% {
+    stroke-dashoffset: 90;
+    opacity: 0;
+    transform: translate(0, 4px) scaleX(0.9);
+  }
+  30% {
+    opacity: 1;
+  }
+  60% {
+    transform: translate(3px, -8px) scaleX(1.25);
+  }
+  100% {
+    stroke-dashoffset: -90;
+    opacity: 0;
+    transform: translate(-2px, -14px) scaleX(1.4);
+  }
+}
+
+/* ---- particles --------------------------------------------------------- */
+
+/* tandoor sparks: up fast, out sideways, gone */
+.fx-ember {
+  transform-origin: center;
+  animation: ember-lift 2.6s ease-out infinite;
+}
+@keyframes ember-lift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 6px) scale(0.5);
+  }
+  15% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(7px, -34px) scale(0.25);
+  }
+}
+
+/* peri peri masala: lighter than a spark, so it drifts rather than shoots */
+.fx-dust {
+  animation: dust-drift 3.4s ease-in-out infinite;
+}
+@keyframes dust-drift {
+  0% {
+    opacity: 0;
+    transform: translate(0, 2px) scale(0.6);
+  }
+  20% {
+    opacity: 0.95;
+  }
+  50% {
+    transform: translate(-5px, -14px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(6px, -28px) scale(0.7);
+  }
+}
+
+/* kurkure crumbs shake loose and fall off the plate */
+.fx-crumb {
+  animation: crumb-fall 2.8s ease-in infinite;
+}
+@keyframes crumb-fall {
+  0% {
+    opacity: 0;
+    transform: translate(0, -6px) rotate(0deg);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-6px, 30px) rotate(180deg);
+  }
+}
+
+/* ---- surface treatments that move -------------------------------------- */
+
+/* the wet gloss travelling across the chilli sauce */
+.momo-sheen {
+  animation: sheen-sweep 3.8s ease-in-out infinite;
+}
+@keyframes sheen-sweep {
+  0%,
+  55% {
+    transform: translateX(0) skewX(-14deg);
+    opacity: 0;
+  }
+  62% {
+    opacity: 0.35;
+  }
+  100% {
+    transform: translateX(150px) skewX(-14deg);
+    opacity: 0;
+  }
+}
+
+/* sauce and malai, still deciding whether to fall */
+.momo-drip {
+  transform-origin: 50% 74%;
+  animation: drip-swell 4.2s ease-in-out infinite;
+}
+@keyframes drip-swell {
+  0%,
+  100% {
+    transform: scaleY(0.86);
+  }
+  50% {
+    transform: scaleY(1.12);
+  }
+}
+
+/* the skewer turning slowly over the coals */
+.momo-skewer {
+  transform-origin: 50% 50%;
+  animation: skewer-turn 6s ease-in-out infinite;
+}
+@keyframes skewer-turn {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+/* ---- cold drinks ------------------------------------------------------- */
+
+/* bubbles breaking loose off the ice and running up the glass */
+.fx-fizz circle {
+  animation: fizz-rise 3.2s ease-in infinite;
+}
+@keyframes fizz-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  15% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-46px) scale(1.15);
+  }
+}
+
+/* the surface still settling after the shake */
+.fx-swill {
+  transform-origin: 50% 38%;
+  animation: swill 4.6s ease-in-out infinite;
+}
+@keyframes swill {
+  0%,
+  100% {
+    transform: translateX(-3px) scaleX(0.9);
+    opacity: 0.25;
+  }
+  50% {
+    transform: translateX(3px) scaleX(1.1);
+    opacity: 0.5;
+  }
+}
+
+/* condensation beading and running down the outside */
+.fx-drop circle {
+  animation: drop-run 4.4s ease-in infinite;
+}
+@keyframes drop-run {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.5);
+  }
+  20% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(26px) scale(1.1);
+  }
+}
+
+/* the straw and the sprig nudged by the fizz */
+.fx-straw {
+  transform-origin: 59% 42%;
+  animation: nudge 5.2s ease-in-out infinite;
+}
+.fx-sprig {
+  transform-origin: 46% 30%;
+  animation: nudge 4.4s ease-in-out infinite reverse;
+}
+@keyframes nudge {
+  0%,
+  100% {
+    transform: rotate(-2.5deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+/* ---- fries and burgers -------------------------------------------------- */
+
+/* each fry settles into the carton on its own beat */
+.fx-fry {
+  animation: fry-settle 4.8s ease-in-out infinite;
+}
+@keyframes fry-settle {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-1.6px) rotate(1.4deg);
+  }
+}
+
+/* cheese creeping further down whatever it was poured on */
+.fx-melt {
+  transform-origin: 50% 30%;
+  animation: melt-creep 5s ease-in-out infinite;
+}
+@keyframes melt-creep {
+  0%,
+  100% {
+    transform: scaleY(0.97);
+  }
+  50% {
+    transform: scaleY(1.06);
+  }
+}
+.fx-melt-drip {
+  transform-origin: 50% 60%;
+  animation: melt-creep 4.2s ease-in-out infinite 0.6s;
+}
+
+/* the stack breathing, like it has just been set down */
+.fx-stack {
+  transform-origin: 50% 88%;
+  animation: stack-settle 5.6s ease-in-out infinite;
+}
+@keyframes stack-settle {
+  0%,
+  100% {
+    transform: scaleY(1) translateY(0);
+  }
+  50% {
+    transform: scaleY(0.985) translateY(1px);
+  }
+}
+
+/* Off-screen parking is handled globally by [data-anim].is-parked; this is
+   just the reduced-motion case, where the art should be still, not paused. */
+@media (prefers-reduced-motion: reduce) {
+  .dish-art *,
+  .dish-art::after {
+    animation: none !important;
+  }
+}

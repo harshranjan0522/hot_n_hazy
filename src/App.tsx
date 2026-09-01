@@ -1,5 +1,8 @@
 import { motion, useScroll, useSpring } from 'motion/react'
 import { useSmoothScroll } from './lib/useSmoothScroll'
+import { usePauseOffscreen } from './lib/usePauseOffscreen'
+import { useCoarsePointer } from './lib/useMediaQuery'
+import Cursor from './components/Cursor'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
 import Marquee from './components/Marquee'
@@ -12,6 +15,8 @@ import Footer from './components/Footer'
 
 export default function App() {
   useSmoothScroll()
+  usePauseOffscreen()
+  const coarse = useCoarsePointer()
 
   const { scrollYProgress } = useScroll()
   const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 26, restDelta: 0.001 })
@@ -23,6 +28,9 @@ export default function App() {
       </a>
 
       <motion.div className="progress" style={{ scaleX: progress }} aria-hidden="true" />
+
+      {/* A touch device has no cursor to replace, so it keeps the native one. */}
+      {!coarse && <Cursor />}
 
       <Nav />
 
@@ -39,7 +47,7 @@ export default function App() {
 
       <Footer />
 
-      <div className="grain" aria-hidden="true" />
+      {!coarse && <div className="grain" aria-hidden="true" />}
     </>
   )
 }

@@ -1,18 +1,26 @@
 import { useEffect } from 'react'
 import Lenis from 'lenis'
 import { useReducedMotion } from 'motion/react'
+import { useCoarsePointer } from './useMediaQuery'
 
 /**
  * Drives page scroll through Lenis so the parallax layers glide instead of
  * stepping with the wheel. Returns nothing — it just takes over `window`
  * scrolling for the lifetime of the component, and stays out of the way
  * entirely when the visitor has asked for reduced motion.
+ *
+ * Deliberately desktop-only. On a phone the OS already scrolls on the
+ * compositor thread, off the main thread; routing every touch through a rAF
+ * loop instead gives up that hardware path and puts scrolling behind whatever
+ * else the main thread is busy with. Native momentum is both smoother and
+ * free, and anchor links keep their easing via `scroll-behavior: smooth`.
  */
 export function useSmoothScroll() {
   const reduced = useReducedMotion()
+  const coarse = useCoarsePointer()
 
   useEffect(() => {
-    if (reduced) return
+    if (reduced || coarse) return
 
     const lenis = new Lenis({
       duration: 1.1,
@@ -58,5 +66,5 @@ export function useSmoothScroll() {
       cancelAnimationFrame(frame)
       lenis.destroy()
     }
-  }, [reduced])
+  }, [reduced, coarse])
 }

@@ -49,6 +49,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Native anchor jumps (the path taken wherever Lenis is not driving) would
+     otherwise land the heading underneath the fixed nav. */
+  scroll-padding-top: 5rem;
   /* Scroll-driven scale on the hero pushes a few px past the right edge on
      narrow screens. `clip` kills the sideways scroll without creating a
      scroll container, so Lenis and position:sticky keep working. */
@@ -229,4 +232,19 @@ button {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ==========================================================================
+   Off-screen parking
+   Browsers do not throttle infinite CSS animations that scroll out of view.
+   With ~25 of them the page never reaches an idle frame, so a phone has no
+   headroom left when a real scroll arrives. usePauseOffscreen toggles this
+   class on each `[data-anim]` region as it leaves and re-enters the viewport.
+   Paused animations hold their current frame, so nothing jumps on the way back.
+   ========================================================================== */
+[data-anim].is-parked,
+[data-anim].is-parked *,
+[data-anim].is-parked *::before,
+[data-anim].is-parked *::after {
+  animation-play-state: paused !important;
 }

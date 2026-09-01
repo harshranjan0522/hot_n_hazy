@@ -190,26 +190,26 @@
   filter: drop-shadow(0 0 34px rgba(255, 90, 20, 0.45));
 }
 
-/* the logo badge tucked between the two words */
-.hero__amp {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 2;
+/* Shrink-wraps "Hot" so the tick below can hang off the word, not the page. */
+.hero__word {
+  position: relative;
   display: block;
-  width: clamp(2.2rem, 5.2vw, 3.6rem);
-  height: clamp(2.2rem, 5.2vw, 3.6rem);
-  translate: -50% -50%;
-  border-radius: 50%;
-  /* a ring of the page's own ground so the wordmark reads behind it */
-  box-shadow:
-    0 0 0 5px var(--ink),
-    0 10px 30px rgba(221, 32, 21, 0.5);
 }
-.hero__amp svg {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
+
+/* the small N' hooked onto the end of "Hot", sitting just above "Hazy" */
+.hero__tick {
+  position: absolute;
+  right: -0.34em;
+  bottom: 0.07em;
+  z-index: 2;
+  font-size: 0.3em;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  background: linear-gradient(96deg, var(--orange) 10%, var(--amber) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 18px rgba(255, 140, 20, 0.55));
 }
 
 .hero__tagline {
@@ -610,12 +610,9 @@
   .hero__title {
     font-size: clamp(3.4rem, 16vw, 5rem);
   }
-  .hero__amp {
-    width: 2.5rem;
-    height: 2.5rem;
-    box-shadow:
-      0 0 0 4px var(--ink),
-      0 8px 22px rgba(221, 32, 21, 0.5);
+  .hero__tick {
+    right: -0.3em;
+    font-size: 0.32em;
   }
   .hero__truck {
     height: auto;
@@ -637,14 +634,7 @@
     max-width: 30rem;
     font-size: 0.92rem;
   }
-  /* Keep only the edge momos on phones — the rest land on the copy.
-     1, 2, 7 and 8 hug the left/right margins; 3-6 sit over the text. */
-  .hero__floater:nth-child(3),
-  .hero__floater:nth-child(4),
-  .hero__floater:nth-child(5),
-  .hero__floater:nth-child(6) {
-    display: none;
-  }
+  /* The edge-only momo set is chosen in Hero.tsx — see `edge` in `floaters`. */
   .hero__floater-steam {
     display: none;
   }

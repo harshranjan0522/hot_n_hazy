@@ -549,8 +549,8 @@
   background: linear-gradient(160deg, rgba(255, 138, 11, 0.13), rgba(255, 244, 232, 0.02));
 }
 .dish__art {
-  flex: 0 0 3.6rem;
-  height: 3.6rem;
+  flex: 0 0 4rem;
+  height: 4rem;
 }
 .dish__name {
   display: flex;

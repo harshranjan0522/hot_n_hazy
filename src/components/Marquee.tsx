@@ -15,7 +15,7 @@ const items = [
  */
 export default function Marquee({ reverse = false }: { reverse?: boolean }) {
   return (
-    <div className="marquee" aria-hidden="true">
+    <div className="marquee" aria-hidden="true" data-anim>
       <div className={`marquee__track${reverse ? ' marquee__track--rev' : ''}`}>
         {[0, 1].map((copy) => (
           <ul className="marquee__list" key={copy}>

@@ -1,0 +1,83 @@
+/* ==========================================================================
+   The momo cursor. Only ever active while <Cursor> is mounted, which is fine
+   pointers only — the class is added and removed by the component itself.
+   ========================================================================== */
+
+/* The universal selector is deliberate: without it every `cursor: pointer`
+   further down the page would put the native arrow back. `!important` for the
+   same reason — this is a global override, and it has to beat .btn et al. */
+.has-momo-cursor,
+.has-momo-cursor * {
+  cursor: none !important;
+}
+/* The map embed keeps its own cursor — the momo cannot follow in there. */
+.has-momo-cursor iframe {
+  cursor: auto !important;
+}
+
+.momo-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  /* above everything, the skip-link (200) included */
+  z-index: 300;
+  width: 30px;
+  height: 30px;
+  /* centres the momo on the actual hotspot */
+  margin: -15px 0 0 -15px;
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease-out);
+  will-change: transform;
+}
+
+.momo-cursor__lean {
+  display: block;
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+/* `scale` and `translate` are their own properties, so they compose with the
+   `transform` motion writes on the parent instead of overwriting it. */
+.momo-cursor__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  scale: 1;
+  /* The tight dark shadow is an outline, not decoration: without it the fried
+     momo disappears into the amber buttons it is most often sitting on. */
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.9)) drop-shadow(0 3px 6px rgba(0, 0, 0, 0.55));
+  transition:
+    scale 0.25s var(--ease-out),
+    filter 0.25s var(--ease-out);
+  animation: cursor-bob 2.6s ease-in-out infinite;
+}
+
+/* over anything clickable it swells and starts glowing */
+.momo-cursor.is-hot .momo-cursor__svg {
+  scale: 1.22;
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 10px rgba(255, 138, 11, 0.85))
+    drop-shadow(0 3px 6px rgba(0, 0, 0, 0.55));
+}
+
+/* and squashes when pressed */
+.momo-cursor.is-down .momo-cursor__svg {
+  scale: 0.82;
+  transition-duration: 0.09s;
+}
+
+@keyframes cursor-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -2.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .momo-cursor__svg {
+    animation: none;
+  }
+}
