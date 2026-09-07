@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
 
     private WebView webView;
     private long lastBackPress = 0L;
+    private boolean firstResumeDone = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,6 +140,24 @@ public class MainActivity extends Activity {
         String jobName = getString(R.string.print_job);
         PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(jobName);
         printManager.print(jobName, adapter, new PrintAttributes.Builder().build());
+    }
+
+    /**
+     * Reopening a backgrounded activity does not reload the page, so the web
+     * side's boot-time login would never run again. Nudging it from here is
+     * what makes the till always come back to the login screen.
+     *
+     * Skipped on the first resume: the page is still loading and boot() is
+     * about to show the login screen anyway.
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!firstResumeDone) {
+            firstResumeDone = true;
+            return;
+        }
+        webView.evaluateJavascript("window.HazyPOS && window.HazyPOS.relock();", null);
     }
 
     @Override

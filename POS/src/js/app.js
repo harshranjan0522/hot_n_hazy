@@ -7,7 +7,7 @@
  */
 
 import { el, clear } from './ui.js'
-import { session, currentUser, logout, resetOrder, rollShiftIfDue } from './store.js'
+import { session, currentUser, logout, rollShiftIfDue } from './store.js'
 import { SHOP } from './data.js'
 import { openDrawer } from './components/drawer.js'
 
@@ -40,6 +40,35 @@ let route = { name: 'login', params: {} }
 let root = null
 /** Set by a screen that binds document-level listeners; called on navigation. */
 let teardown = null
+
+/**
+ * The till always opens at the door — on launch, and again whenever it comes
+ * back from the background — so whoever picks the phone up has to enter a PIN.
+ *
+ * RELOCK_AFTER_MS is the grace period before a background app is locked. 0
+ * means always. Raise it (30_000, say) if the counter needs to hop to another
+ * app mid-order — checking a UPI payment — without being signed out.
+ */
+const RELOCK_AFTER_MS = 0
+let hiddenAt = null
+
+function relock() {
+  // Already at the door; re-rendering would only wipe a half-typed PIN.
+  if (BARE.has(route.name)) return
+  logout()
+  go('login')
+}
+
+function onVisibilityChange() {
+  if (document.hidden) {
+    hiddenAt = Date.now()
+    return
+  }
+  if (hiddenAt == null) return
+  const away = Date.now() - hiddenAt
+  hiddenAt = null
+  if (away >= RELOCK_AFTER_MS) relock()
+}
 
 export function go(name, params = {}) {
   route = { name, params }
@@ -103,15 +132,16 @@ export function boot(mountPoint) {
   root = mountPoint
   // A machine left on overnight starts the next shift with an empty log.
   rollShiftIfDue()
-  // A reload mid-shift lands back on the order screen with the cart intact; a
-  // reload with nobody signed in starts at the door.
-  if (currentUser()) {
-    go('order')
-  } else {
-    logout()
-    resetOrder()
-    go('login')
-  }
+
+  document.addEventListener('visibilitychange', onVisibilityChange)
+  // Android's WebView is the case visibilitychange cannot be relied on for:
+  // reopening a backgrounded activity does not reload the page. MainActivity
+  // calls this from onResume() as a guarantee.
+  window.HazyPOS = { relock }
+
+  // Always the login screen, never a restored session.
+  logout()
+  go('login')
 }
 
 export { session }
