@@ -16,7 +16,8 @@
   justify-content: center;
   gap: clamp(1.25rem, 4vh, 2rem);
   height: 100%;
-  padding: var(--pad);
+  padding: calc(var(--pad) + var(--safe-top)) calc(var(--pad) + var(--safe-right))
+    calc(var(--pad) + var(--safe-bottom)) calc(var(--pad) + var(--safe-left));
   background:
     radial-gradient(60rem 40rem at 50% -10%, #dd201526, transparent 70%),
     var(--ink);
@@ -99,7 +100,8 @@
   justify-content: center;
   gap: 1.25rem;
   height: 100%;
-  padding: var(--pad);
+  padding: calc(var(--pad) + var(--safe-top)) calc(var(--pad) + var(--safe-right))
+    calc(var(--pad) + var(--safe-bottom)) calc(var(--pad) + var(--safe-left));
 }
 
 .pin__ask {
@@ -374,8 +376,8 @@
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.75rem var(--pad);
-  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  padding: 0.75rem calc(var(--pad) + var(--safe-right)) calc(0.75rem + var(--safe-bottom))
+    calc(var(--pad) + var(--safe-left));
   background: linear-gradient(180deg, #150d09f2, var(--ink));
   border-top: 1px solid var(--line);
   backdrop-filter: blur(6px);

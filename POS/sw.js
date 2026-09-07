@@ -7,7 +7,7 @@
  * A new version lands by bumping CACHE — the old cache is dropped on activate.
  */
 
-const CACHE = 'hnh-pos-v2'
+const CACHE = 'hnh-pos-v3'
 
 const SHELL = [
   './',

@@ -34,7 +34,24 @@
   --radius: 0.9rem;
   --pad: clamp(0.75rem, 2vw, 1.5rem);
 
+  /* --- notch insets ----------------------------------------------------
+     index.html asks for viewport-fit=cover and iOS draws the web app under
+     the status bar, so on a notched iPhone the chrome has to be pushed clear
+     of it by hand. Declared flat first: a browser that does not know env()
+     drops the second pair and keeps the zeros. */
+  --safe-top: 0px;
+  --safe-bottom: 0px;
+  --safe-left: 0px;
+  --safe-right: 0px;
+
   color-scheme: dark;
+}
+
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
 }
 
 *,
@@ -133,7 +150,8 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 0.9rem;
-  padding: 0.6rem var(--pad);
+  padding: calc(0.6rem + var(--safe-top)) calc(var(--pad) + var(--safe-right))
+    0.6rem calc(var(--pad) + var(--safe-left));
   background: linear-gradient(180deg, var(--ink-3), var(--ink-2));
   border-bottom: 1px solid var(--line);
 }
@@ -298,7 +316,7 @@ button:disabled {
 .drawer__panel {
   display: flex;
   flex-direction: column;
-  width: min(22rem, 86vw);
+  width: calc(min(22rem, 86vw) + var(--safe-left));
   height: 100%;
   background: var(--ink-2);
   border-right: 1px solid var(--line);
@@ -316,7 +334,7 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem var(--pad);
+  padding: calc(1rem + var(--safe-top)) var(--pad) 1rem calc(var(--pad) + var(--safe-left));
   border-bottom: 1px solid var(--line);
 }
 
@@ -393,6 +411,7 @@ button:disabled {
 .sheet {
   align-items: end;
   justify-items: center;
+  padding-bottom: calc(var(--pad) + var(--safe-bottom));
 }
 
 .modal__card {
