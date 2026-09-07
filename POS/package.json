@@ -1,0 +1,13 @@
+{
+  "name": "hot-n-hazy-pos",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Counter till for Hot n' Hazy — no build step, no dependencies.",
+  "scripts": {
+    "start": "node serve.mjs",
+    "dev": "node serve.mjs",
+    "dmg": "./tools/build-dmg.sh",
+    "icons": "./tools/make-icons.sh"
+  }
+}

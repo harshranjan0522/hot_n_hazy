@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The menu, users and the day's order log live in WebView localStorage, which
+  sits under the app's databases/ directory. Including it means a restored
+  phone comes back with the shop's own prices.
+-->
+<full-backup-content>
+    <include domain="database" path="." />
+    <include domain="file" path="app_webview" />
+</full-backup-content>

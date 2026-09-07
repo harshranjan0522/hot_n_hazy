@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hazy POS</string>
+    <string name="print_job">Hot n Hazy receipt</string>
+    <string name="back_hint">Press back again to close the till</string>
+</resources>

@@ -1,0 +1,37 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.hotnhazy.pos'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.hotnhazy.pos'
+        minSdk 24          // WebViewAssetLoader + ServiceWorkerController
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0'
+    }
+
+    buildTypes {
+        release {
+            // Unsigned by default: signing needs a keystore the shop owns.
+            // See tools/build-apk.sh for the debug build, which is what you
+            // want for sideloading onto the counter phone.
+            minifyEnabled false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    // The only dependency. WebViewAssetLoader serves the bundled till over a
+    // real https:// origin, which is what makes ES modules, localStorage and
+    // the service worker behave exactly as they do in a browser.
+    implementation 'androidx.webkit:webkit:1.12.1'
+}

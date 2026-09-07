@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same value as the ink token in src/css/base.css. -->
+    <color name="ink">#0B0705</color>
+</resources>

@@ -1,0 +1,6 @@
+// Root build file. The Android Gradle Plugin version lives here; if Gradle
+// complains about a version mismatch, this is the one line to change (and
+// tools/build-apk.sh pins the matching Gradle distribution).
+plugins {
+    id 'com.android.application' version '8.7.3' apply false
+}

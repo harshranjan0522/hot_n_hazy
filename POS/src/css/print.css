@@ -1,0 +1,146 @@
+/* ==========================================================================
+   Print sheet — one receipt per page, sized for an 80 mm thermal roll.
+   Linked with media="print", so every rule here is print-only.
+   ========================================================================== */
+
+@page {
+  size: 80mm auto;
+  margin: 4mm;
+}
+
+html,
+body {
+  height: auto;
+  background: #fff;
+  color: #000;
+}
+
+/* The app is irrelevant on paper; only the receipts print. */
+#app,
+.drawer,
+.modal,
+.sheet {
+  display: none !important;
+}
+
+#print-root {
+  display: block !important;
+}
+
+.receipt {
+  width: 72mm;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-size: 10pt;
+  line-height: 1.35;
+  color: #000;
+  padding-top: 3mm;
+  /* One slip per page: the momo pan and the chiller each get their own. */
+  break-after: page;
+  page-break-after: always;
+}
+
+.receipt:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.receipt__head {
+  text-align: center;
+}
+
+.receipt__shop {
+  margin: 0;
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: 15pt;
+  letter-spacing: 0.02em;
+}
+
+.receipt__addr {
+  margin: 0;
+  font-size: 7.5pt;
+  line-height: 1.25;
+}
+
+.receipt__rule {
+  border-top: 1px dashed #000;
+  margin: 2mm 0;
+}
+
+.receipt__station {
+  text-align: center;
+  font-weight: 700;
+  font-size: 12pt;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.receipt__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 3mm;
+}
+
+.receipt__row span {
+  white-space: nowrap;
+}
+
+.receipt__row strong {
+  font-weight: 700;
+  text-align: right;
+}
+
+.receipt__lines {
+  margin: 1mm 0;
+}
+
+.rline + .rline {
+  margin-top: 1.6mm;
+  padding-top: 1.6mm;
+  border-top: 1px dotted #999;
+}
+
+.rline__name {
+  font-weight: 700;
+  font-size: 10pt;
+  line-height: 1.25;
+}
+
+/* Section · size · qty × rate on the left, the amount hard right. */
+.rline__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 3mm;
+  font-size: 8.5pt;
+}
+
+.rline__meta strong {
+  font-size: 10pt;
+  white-space: nowrap;
+}
+
+.receipt__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 11pt;
+  text-transform: uppercase;
+}
+
+.receipt__total strong {
+  font-family: 'Arial Black', Arial, sans-serif;
+  font-size: 14pt;
+}
+
+.receipt__grand {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1mm;
+  font-size: 8.5pt;
+}
+
+.receipt__foot {
+  margin: 0;
+  text-align: center;
+  font-size: 8pt;
+}

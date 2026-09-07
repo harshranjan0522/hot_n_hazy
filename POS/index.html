@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Hot n' Hazy — POS</title>
+    <meta name="theme-color" content="#0b0705" />
+    <meta name="description" content="Counter till for Hot n' Hazy, Bokaro Steel City." />
+    <link rel="icon" href="favicon.svg" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <!-- iOS ignores the manifest for these two. -->
+    <link rel="apple-touch-icon" href="icons/icon-180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Hazy POS" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="src/css/base.css" />
+    <link rel="stylesheet" href="src/css/screens.css" />
+    <link rel="stylesheet" href="src/css/print.css" media="print" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <!-- Receipts are rendered here and only ever shown by the print sheet. -->
+    <div id="print-root" aria-hidden="true"></div>
+    <script type="module" src="src/js/main.js"></script>
+  </body>
+</html>

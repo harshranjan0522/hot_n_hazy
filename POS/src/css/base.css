@@ -1,0 +1,734 @@
+/* ==========================================================================
+   Hot n' Hazy POS — tokens, reset, and the shared chrome
+   (topbar, drawer, buttons, modal, sheet).
+
+   Palette is the same four notes as the website: black ground, hot red, hazy
+   orange, warm white. Sizing is deliberately large — this is driven with a
+   thumb on a counter, often in a hurry.
+   ========================================================================== */
+
+:root {
+  --ink: #0b0705;
+  --ink-2: #150d09;
+  --ink-3: #221510;
+  --line: #3a251c;
+
+  --red: #dd2015;
+  --red-hot: #ff3b21;
+  --red-deep: #8e1109;
+  --orange: #ff8a0b;
+  --amber: #ffb43d;
+
+  --go: #17a34a;
+  --go-hot: #22c55e;
+
+  --cream: #fff4e8;
+  --cream-dim: #c9b7a6;
+  --white: #fff;
+
+  --font-display: 'Anton', 'Arial Black', 'Helvetica Neue', ui-sans-serif, sans-serif;
+  --font-body: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  /* One knob for every tap target on the app. */
+  --tap: 3.5rem;
+  --radius: 0.9rem;
+  --pad: clamp(0.75rem, 2vw, 1.5rem);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 0.9rem + 0.2vw, 1.05rem);
+  line-height: 1.45;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+body.is-locked {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+p {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+
+button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 3px solid var(--amber);
+  outline-offset: 2px;
+}
+
+/* Receipts live in the DOM the whole time; only the print sheet shows them. */
+#print-root {
+  display: none;
+}
+
+/* --- app shell ---------------------------------------------------------- */
+
+.shell {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  min-height: 0;
+}
+
+.shell--bare {
+  grid-template-rows: 1fr;
+  place-items: stretch;
+}
+
+.shell__body {
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* --- topbar ------------------------------------------------------------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.6rem var(--pad);
+  background: linear-gradient(180deg, var(--ink-3), var(--ink-2));
+  border-bottom: 1px solid var(--line);
+}
+
+.hamburger {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius);
+  background: #ffffff0d;
+  border: 1px solid var(--line);
+}
+
+.hamburger:active {
+  background: #ffffff1a;
+}
+
+.hamburger__bars,
+.hamburger__bars::before,
+.hamburger__bars::after {
+  display: block;
+  width: 1.4rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--cream);
+  content: '';
+}
+
+.hamburger__bars {
+  position: relative;
+}
+
+.hamburger__bars::before {
+  position: absolute;
+  top: -7px;
+}
+
+.hamburger__bars::after {
+  position: absolute;
+  top: 7px;
+}
+
+.topbar__title {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.topbar__name {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.topbar__sub {
+  font-size: 0.8rem;
+  color: var(--cream-dim);
+}
+
+.topbar__user {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-left: auto;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.topbar__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--go-hot);
+}
+
+/* --- buttons ------------------------------------------------------------ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--tap);
+  padding: 0 1.4rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(1px) scale(0.99);
+}
+
+.btn--go {
+  background: linear-gradient(180deg, var(--go-hot), var(--go));
+  color: #04240f;
+  box-shadow: 0 0.5rem 1.4rem #17a34a4d;
+}
+
+.btn--ghost {
+  background: #ffffff0a;
+  border: 1px solid var(--line);
+  color: var(--cream);
+}
+
+.btn--danger {
+  background: #ffffff08;
+  border: 1px solid #7a2018;
+  color: #ff8a7a;
+}
+
+.btn--lg {
+  min-height: 4.25rem;
+  padding: 0 2rem;
+  font-size: 1.15rem;
+}
+
+.btn--sm {
+  min-height: 2.5rem;
+  padding: 0 0.9rem;
+  font-size: 0.85rem;
+}
+
+/* Back on the left, forward on the right — the same on every screen. */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: var(--pad);
+}
+
+.navbar > :only-child {
+  margin-right: auto;
+}
+
+.navbar--inline {
+  padding: 0;
+}
+
+/* --- drawer ------------------------------------------------------------- */
+
+.drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: #000000a6;
+  backdrop-filter: blur(2px);
+}
+
+.drawer__panel {
+  display: flex;
+  flex-direction: column;
+  width: min(22rem, 86vw);
+  height: 100%;
+  background: var(--ink-2);
+  border-right: 1px solid var(--line);
+  box-shadow: 1rem 0 3rem #000000a6;
+  animation: drawer-in 0.18s ease-out;
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+.drawer__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem var(--pad);
+  border-bottom: 1px solid var(--line);
+}
+
+.drawer__who {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.drawer__close {
+  margin-left: auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #ffffff0d;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.drawer__items {
+  display: flex;
+  flex-direction: column;
+  padding: 0.75rem;
+  gap: 0.5rem;
+}
+
+.drawer__item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  min-height: var(--tap);
+  padding: 0.85rem 1rem;
+  border-radius: var(--radius);
+  background: #ffffff08;
+  border: 1px solid var(--line);
+  text-align: left;
+}
+
+.drawer__item:active {
+  background: #ffffff14;
+}
+
+.drawer__label {
+  font-weight: 700;
+}
+
+.drawer__hint {
+  font-size: 0.8rem;
+  color: var(--cream-dim);
+}
+
+.drawer__item--warn .drawer__label {
+  color: #ff8a7a;
+}
+
+/* --- modal + sheet ------------------------------------------------------ */
+
+.modal,
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  padding: var(--pad);
+  background: #000000b8;
+  backdrop-filter: blur(3px);
+}
+
+.modal {
+  place-items: center;
+}
+
+.sheet {
+  align-items: end;
+  justify-items: center;
+}
+
+.modal__card {
+  width: min(26rem, 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  box-shadow: 0 1.5rem 4rem #000000cc;
+  animation: pop-in 0.16s ease-out;
+}
+
+@keyframes pop-in {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+}
+
+.modal__name {
+  font-size: 1.5rem;
+  color: var(--white);
+}
+
+.modal__note {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--cream-dim);
+}
+
+.modal__step {
+  margin-top: 1.1rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cream-dim);
+}
+
+.modal__sizes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.sizebtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  min-height: 4.5rem;
+  border-radius: var(--radius);
+  background: #ffffff08;
+  border: 2px solid var(--line);
+}
+
+.sizebtn.is-on {
+  background: linear-gradient(180deg, #ff8a0b26, #dd201526);
+  border-color: var(--orange);
+}
+
+.sizebtn__label {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  text-transform: uppercase;
+}
+
+.sizebtn__price {
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+}
+
+.sizebtn.is-on .sizebtn__price {
+  color: var(--amber);
+}
+
+/* --- add-on toggle (cheese on a burger) --------------------------------- */
+
+.modal__addon {
+  margin-top: 0.5rem;
+}
+
+.addonbtn {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  min-height: 3.5rem;
+  padding: 0 1rem;
+  border-radius: var(--radius);
+  background: #ffffff08;
+  border: 2px solid var(--line);
+  text-align: left;
+}
+
+.addonbtn.is-on {
+  background: linear-gradient(180deg, #ff8a0b26, #dd201526);
+  border-color: var(--orange);
+}
+
+.addonbtn__box {
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border-radius: 0.4rem;
+  border: 2px solid var(--line);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.addonbtn.is-on .addonbtn__box {
+  background: var(--orange);
+  border-color: var(--orange);
+  color: #241300;
+}
+
+.addonbtn__label {
+  font-weight: 700;
+}
+
+.addonbtn__price {
+  margin-left: auto;
+  color: var(--cream-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.addonbtn.is-on .addonbtn__price {
+  color: var(--amber);
+  font-weight: 700;
+}
+
+/* --- quantity stepper --------------------------------------------------- */
+
+.stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem;
+  border-radius: var(--radius);
+  background: #ffffff08;
+  border: 1px solid var(--line);
+}
+
+.stepper__btn {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 0.7rem;
+  background: #ffffff0f;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.stepper__btn:active {
+  background: #ffffff1f;
+}
+
+.stepper__value {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+}
+
+.stepper--sm {
+  margin: 0;
+  padding: 0.2rem;
+}
+
+.stepper--sm .stepper__btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.2rem;
+}
+
+.stepper--sm .stepper__value {
+  min-width: 2rem;
+  font-size: 1.2rem;
+}
+
+.modal__sum {
+  margin-top: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.9rem;
+  color: var(--cream-dim);
+}
+
+.modal__total {
+  font-family: var(--font-display);
+  font-size: 1.6rem;
+  color: var(--amber);
+}
+
+.modal__actions {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr;
+  gap: 0.6rem;
+  margin-top: 1.25rem;
+}
+
+.modal__actions .btn {
+  min-height: 3.75rem;
+  font-size: 1.05rem;
+}
+
+/* --- cart sheet --------------------------------------------------------- */
+
+.sheet__card {
+  display: flex;
+  flex-direction: column;
+  width: min(38rem, 100%);
+  max-height: 80vh;
+  border-radius: 1.25rem;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  overflow: hidden;
+  animation: sheet-in 0.18s ease-out;
+}
+
+@keyframes sheet-in {
+  from {
+    transform: translateY(1.5rem);
+    opacity: 0;
+  }
+}
+
+.sheet__head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet__head h3 {
+  font-size: 1.2rem;
+  margin-right: auto;
+}
+
+.sheet__close {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #ffffff0d;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
+.sheet__body {
+  overflow-y: auto;
+  padding: 0.5rem 1.25rem 1.25rem;
+}
+
+.cartline {
+  display: grid;
+  /* minmax(0, …) so a long item name wraps instead of widening the row. */
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid #ffffff0f;
+}
+
+/* On a phone the name takes its own line and the controls sit under it. */
+@media (max-width: 30rem) {
+  .cartline {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    row-gap: 0.6rem;
+  }
+
+  .cartline__what {
+    grid-column: 1 / -1;
+  }
+
+  .cartline .stepper--sm {
+    grid-column: 1;
+    justify-self: start;
+  }
+}
+
+.cartline__what {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.cartline__name {
+  font-weight: 700;
+}
+
+.cartline__meta {
+  font-size: 0.8rem;
+  color: var(--cream-dim);
+}
+
+.cartline__total {
+  min-width: 4.5rem;
+  text-align: right;
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+}
+
+.cartline__x {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: #ffffff0d;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: #ff8a7a;
+}
+
+.sheet__foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 2px dashed var(--line);
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.sheet__foot strong {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  color: var(--amber);
+}
