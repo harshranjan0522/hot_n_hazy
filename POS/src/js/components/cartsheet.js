@@ -6,6 +6,7 @@
 
 import { el, money, lockScroll } from '../ui.js'
 import { cartLines, cartTotal, setLineQty, removeLine, clearCart } from '../store.js'
+import { confirmDialog } from './dialog.js'
 
 export function openCartSheet(onChange) {
   let overlay
@@ -84,8 +85,15 @@ export function openCartSheet(onChange) {
         el(
           'button.btn.btn--ghost.btn--sm',
           {
-            onclick: () => {
-              if (window.confirm('Clear every item from this order?')) {
+            onclick: async () => {
+              const go = await confirmDialog({
+                title: 'Clear this order?',
+                message: 'Every item comes off. The order number is kept.',
+                confirm: 'Clear all',
+                cancel: 'Keep them',
+                danger: true,
+              })
+              if (go) {
                 clearCart()
                 close()
               }

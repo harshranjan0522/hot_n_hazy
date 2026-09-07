@@ -7,7 +7,7 @@
  * A new version lands by bumping CACHE — the old cache is dropped on activate.
  */
 
-const CACHE = 'hnh-pos-v3'
+const CACHE = 'hnh-pos-v4'
 
 const SHELL = [
   './',
@@ -27,6 +27,7 @@ const SHELL = [
   './src/js/ui.js',
   './src/js/receipt.js',
   './src/js/components/cartsheet.js',
+  './src/js/components/dialog.js',
   './src/js/components/drawer.js',
   './src/js/components/itemmodal.js',
   './src/js/screens/admin.js',

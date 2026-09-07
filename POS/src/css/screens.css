@@ -987,6 +987,20 @@
   font-variant-numeric: tabular-nums;
 }
 
+.orders__more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.orders__shown {
+  font-size: 0.85rem;
+  color: var(--cream-dim);
+}
+
 .orders__empty {
   margin-top: 2rem;
   text-align: center;

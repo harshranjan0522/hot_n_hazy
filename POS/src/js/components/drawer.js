@@ -2,6 +2,7 @@
 
 import { el, lockScroll } from '../ui.js'
 import { logout, currentUser, cartCount } from '../store.js'
+import { confirmDialog } from './dialog.js'
 
 export function openDrawer(ctx) {
   const onAdmin = document.body.dataset.screen === 'admin'
@@ -24,8 +25,17 @@ export function openDrawer(ctx) {
       hint && el('span.drawer__hint', null, hint),
     )
 
-  const confirmIfCart = (message, action) => {
-    if (cartCount() > 0 && !window.confirm(message)) return
+  const confirmIfCart = async (message, action) => {
+    if (cartCount() > 0) {
+      const go = await confirmDialog({
+        title: 'Order not finished',
+        message,
+        confirm: 'Discard order',
+        cancel: 'Keep it',
+        danger: true,
+      })
+      if (!go) return
+    }
     action()
   }
 
@@ -52,7 +62,7 @@ export function openDrawer(ctx) {
         // the only difference. logout() persists it; clearing session.userId by
         // hand did not, so a reload signed the previous person straight back in.
         item('Switch user', 'Hand the counter over', () =>
-          confirmIfCart('This order is not finished. Discard it and switch user?', () => {
+          confirmIfCart('Handing over will throw away the items on this order.', () => {
             logout()
             ctx.go('login')
           }),
@@ -61,7 +71,7 @@ export function openDrawer(ctx) {
           'Logout',
           'Close the counter',
           () =>
-            confirmIfCart('This order is not finished. Discard it and log out?', () => {
+            confirmIfCart('Logging out will throw away the items on this order.', () => {
               logout()
               ctx.go('login')
             }),

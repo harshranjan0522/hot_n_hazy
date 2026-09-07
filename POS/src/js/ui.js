@@ -48,7 +48,14 @@ export function money(n) {
   return '₹' + Math.round(Number(n) || 0).toLocaleString('en-IN')
 }
 
-/** Locks/unlocks page scroll while a modal is up. */
+/**
+ * Locks page scroll while a modal is up. Counted, because these nest — a
+ * confirmation raised from the cart sheet would otherwise unlock the page
+ * behind the sheet when it closed.
+ */
+let scrollLocks = 0
+
 export function lockScroll(locked) {
-  document.body.classList.toggle('is-locked', locked)
+  scrollLocks = Math.max(0, scrollLocks + (locked ? 1 : -1))
+  document.body.classList.toggle('is-locked', scrollLocks > 0)
 }

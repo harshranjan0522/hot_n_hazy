@@ -2,11 +2,21 @@
  * All orders for the current 12-hour window: download as CSV, mail the summary,
  * or clear the log. The window rolls over on its own — see rollShiftIfDue() —
  * so the list always shows one trading session, never a growing pile.
+ *
+ * The list is paged. A busy day is ~1000 orders, and rendering them all put
+ * 24k nodes on the screen — 84ms on a desktop, several times that on the phone
+ * this actually runs on. Cards are appended a page at a time instead, so the
+ * cost of opening this screen no longer depends on how well the day went. The
+ * stats, the CSV and the mail report still cover every order.
  */
+
+/** Cards per page. 40 fills a couple of screens without the stall. */
+const PAGE = 40
 
 import { el, money } from '../ui.js'
 import { shop, ordersTotal, clearOrders, rollShiftIfDue, shiftEndsAt } from '../store.js'
 import { SHOP } from '../data.js'
+import { confirmDialog } from '../components/dialog.js'
 
 const CSV_COLUMNS = [
   'Order No',
@@ -192,6 +202,42 @@ export default function ordersScreen(ctx) {
       ),
     )
 
+  /* --- paging ----------------------------------------------------------- */
+
+  const list = el('div.orders__list')
+  const more = el('div.orders__more')
+  let shown = 0
+
+  /** Appends the next page in place — no full re-render, so it stays cheap. */
+  const showMore = () => {
+    const next = orders.slice(shown, shown + PAGE)
+    list.append(...next.map(orderCard))
+    shown += next.length
+    paintMore()
+  }
+
+  const paintMore = () => {
+    const left = orders.length - shown
+    if (left > 0) {
+      more.replaceChildren(
+        el('span.orders__shown', null, 'Showing ' + shown + ' of ' + orders.length),
+        el(
+          'button.btn.btn--ghost',
+          { onclick: showMore },
+          'Load ' + Math.min(PAGE, left) + ' more',
+        ),
+      )
+    } else if (orders.length > PAGE) {
+      more.replaceChildren(
+        el('span.orders__shown', null, 'All ' + orders.length + ' orders shown'),
+      )
+    } else {
+      more.replaceChildren()
+    }
+  }
+
+  if (orders.length) showMore()
+
   const screen = el(
     'div.orders',
     null,
@@ -225,12 +271,18 @@ export default function ordersScreen(ctx) {
           'button.btn.btn--danger',
           {
             disabled: !orders.length,
-            onclick: () => {
-              if (
-                window.confirm(
-                  'Clear all ' + orders.length + ' orders from the log? This cannot be undone.',
-                )
-              ) {
+            onclick: async () => {
+              const go = await confirmDialog({
+                title: 'Clear the order log?',
+                message:
+                  'All ' +
+                  orders.length +
+                  ' orders in this window are removed and a fresh 12-hour window starts. Download the CSV first if you need it — this cannot be undone.',
+                confirm: 'Clear log',
+                cancel: 'Keep it',
+                danger: true,
+              })
+              if (go) {
                 clearOrders()
                 ctx.refresh()
               }
@@ -240,13 +292,12 @@ export default function ordersScreen(ctx) {
         ),
       ),
     ),
-    orders.length
-      ? el('div.orders__list', null, orders.map(orderCard))
-      : el(
-          'p.orders__empty',
-          null,
-          'No orders in this window yet. The log clears itself every 12 hours.',
-        ),
+    orders.length ? list : el(
+      'p.orders__empty',
+      null,
+      'No orders in this window yet. The log clears itself every 12 hours.',
+    ),
+    orders.length ? more : null,
     el(
       'div.navbar',
       null,

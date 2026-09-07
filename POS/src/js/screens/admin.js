@@ -13,6 +13,7 @@ import {
   saveShop,
   groupsInCategory,
   groupNames,
+  fullName,
   itemsInCategory,
   updateItem,
   addItem,
@@ -23,6 +24,7 @@ import {
   resetMenuToDefaults,
 } from '../store.js'
 import { CATEGORIES } from '../data.js'
+import { confirmDialog, alertDialog } from '../components/dialog.js'
 
 /** Blank ("no half plate") is a meaningful value, so it is not coerced to 0. */
 function readPrice(input, { allowBlank }) {
@@ -106,8 +108,16 @@ export default function adminScreen(ctx) {
         'button.adm__del',
         {
           'aria-label': 'Delete ' + item.name,
-          onclick: () => {
-            if (window.confirm('Delete "' + item.name + '" from the menu?')) {
+          onclick: async () => {
+            const go = await confirmDialog({
+              title: 'Delete this item?',
+              message:
+                '"' + fullName(item) + '" comes off the menu. Any of it in the current order goes too.',
+              confirm: 'Delete',
+              cancel: 'Keep it',
+              danger: true,
+            })
+            if (go) {
               deleteItem(item.id)
               ctx.refresh()
             }
@@ -134,7 +144,10 @@ export default function adminScreen(ctx) {
       const label = name.value.trim()
       const fullPrice = readPrice(full, { allowBlank: false })
       if (!label || Number.isNaN(fullPrice)) {
-        window.alert('Give the item a name and a full price.')
+        alertDialog({
+          title: 'Missing details',
+          message: 'An item needs a name and a full price before it can go on the menu.',
+        })
         return
       }
       const halfPrice = readPrice(half, { allowBlank: true })
@@ -217,7 +230,10 @@ export default function adminScreen(ctx) {
         const next = pin.value.trim()
         if (!/^[0-9]{4}$/.test(next)) {
           pin.value = user.pin
-          window.alert('A PIN has to be exactly 4 digits.')
+          alertDialog({
+            title: 'PIN not changed',
+            message: 'A PIN has to be exactly 4 digits.',
+          })
           return
         }
         updateUser(user.id, { pin: next })
@@ -233,10 +249,20 @@ export default function adminScreen(ctx) {
         'button.adm__del',
         {
           'aria-label': 'Remove ' + user.name,
-          onclick: () => {
-            if (!window.confirm('Remove ' + user.name + ' from the counter?')) return
+          onclick: async () => {
+            const go = await confirmDialog({
+              title: 'Remove ' + user.name + '?',
+              message: user.name + ' will no longer be able to log in at the counter.',
+              confirm: 'Remove',
+              cancel: 'Keep',
+              danger: true,
+            })
+            if (!go) return
             if (!deleteUser(user.id)) {
-              window.alert('At least one person has to be able to log in.')
+              alertDialog({
+                title: 'Cannot remove the last user',
+                message: 'At least one person has to be able to log in, or nobody can open the till.',
+              })
               return
             }
             ctx.refresh()
@@ -259,7 +285,10 @@ export default function adminScreen(ctx) {
       const label = name.value.trim()
       const code = pin.value.trim()
       if (!label || !/^[0-9]{4}$/.test(code)) {
-        window.alert('Enter a name and a 4-digit PIN.')
+        alertDialog({
+          title: 'Missing details',
+          message: 'A new user needs a name and a 4-digit PIN.',
+        })
         return
       }
       addUser({ name: label, pin: code })
@@ -341,8 +370,16 @@ export default function adminScreen(ctx) {
         el(
           'button.btn.btn--danger',
           {
-            onclick: () => {
-              if (window.confirm('Throw away every menu edit and restore the original list?')) {
+            onclick: async () => {
+              const go = await confirmDialog({
+                title: 'Reset the menu?',
+                message:
+                  'Every price and item you have changed goes back to how it shipped. Users and the order log are left alone.',
+                confirm: 'Reset menu',
+                cancel: 'Keep my changes',
+                danger: true,
+              })
+              if (go) {
                 resetMenuToDefaults()
                 ctx.refresh()
               }

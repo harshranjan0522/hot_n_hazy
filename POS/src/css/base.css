@@ -627,6 +627,75 @@ button:disabled {
   font-size: 1.05rem;
 }
 
+/* --- confirm / alert dialog ---------------------------------------------
+   Above the drawer (40) and the cart sheet (50), because a confirmation is
+   usually raised from one of them.
+   ---------------------------------------------------------------------- */
+
+.dialog {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: calc(var(--pad) + var(--safe-left));
+  background: #000000cc;
+  backdrop-filter: blur(3px);
+}
+
+.dialog__card {
+  width: min(24rem, 100%);
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  box-shadow: 0 1.5rem 4rem #000000cc;
+  text-align: center;
+  animation: pop-in 0.14s ease-out;
+}
+
+.dialog__title {
+  font-size: 1.35rem;
+  color: var(--white);
+}
+
+.dialog__message {
+  margin-top: 0.7rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--cream-dim);
+}
+
+.dialog__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+
+.dialog__actions--single {
+  grid-template-columns: minmax(0, 1fr);
+  justify-content: center;
+}
+
+.dialog__actions .btn {
+  min-height: 3.5rem;
+  padding: 0 1rem;
+  font-size: 1rem;
+}
+
+@media (max-width: 26rem) {
+  /* Stack, so a destructive button is never a mis-tap away from Cancel. */
+  .dialog__actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Affirmative on top when stacked would invite a thumb; keep it last. */
+  .dialog__actions .btn--ghost {
+    order: 2;
+  }
+}
+
 /* --- cart sheet --------------------------------------------------------- */
 
 .sheet__card {
