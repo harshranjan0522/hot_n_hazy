@@ -1,10 +1,10 @@
 import Reveal from './Reveal'
-import { business } from '../content'
+import { business, priceBand } from '../content'
 
 const details = [
   { label: 'Where', value: [business.address, business.city] },
   { label: 'When', value: [business.hours, business.days] },
-  { label: 'Damage', value: [business.priceBand, 'per plate, roughly'] },
+  { label: 'Damage', value: [priceBand, 'off the board, half plate to combo'] },
 ]
 
 export default function FindUs() {

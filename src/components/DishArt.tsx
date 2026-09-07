@@ -1,5 +1,5 @@
 import Momo, { type MomoVariant } from './Momo'
-import Mojito, { type MojitoVariant } from './Mojito'
+import Chiller, { type ChillerVariant } from './Chiller'
 import Fries, { type FriesVariant } from './Fries'
 import Burger, { type BurgerVariant } from './Burger'
 
@@ -14,7 +14,7 @@ import Burger, { type BurgerVariant } from './Burger'
  * the menu section parks the lot once it scrolls away.
  */
 
-export type DishVariant = MomoVariant | MojitoVariant | FriesVariant | BurgerVariant
+export type DishVariant = MomoVariant | ChillerVariant | FriesVariant | BurgerVariant
 
 /** Wisps drawn in a 100×100 box so they line up with the art underneath. */
 function Wisps({
@@ -188,15 +188,10 @@ function Fx({ variant }: { variant: DishVariant }) {
         </>
       )
 
-    /* --- mojitos ----------------------------------------------------- */
-    /* Nothing rises off a cold drink — the fizz and frost live on the glass
-       itself, so the heat layer stays empty. */
-
-    case 'mojito-classic':
-    case 'mojito-apple':
-    case 'mojito-lagoon':
-    case 'mojito-melon':
-      return null
+    /* --- the cold half ------------------------------------------------ */
+    /* Nothing rises off a chiller or a sealed bottle — the fizz and frost
+       live on the glass itself, so the heat layer stays empty. Handled by the
+       `cold` check below, which skips this layer entirely. */
 
     /* steamed, straight out of the basket */
     default:
@@ -206,8 +201,8 @@ function Fx({ variant }: { variant: DishVariant }) {
 
 /** The right drawing for a variant. */
 function Art({ variant }: { variant: DishVariant }) {
-  if (variant.startsWith('mojito-')) {
-    return <Mojito className="dish-art__item" variant={variant as MojitoVariant} />
+  if (variant.startsWith('chiller-')) {
+    return <Chiller className="dish-art__item" variant={variant as ChillerVariant} />
   }
   if (variant.startsWith('fries-')) {
     return <Fries className="dish-art__item" variant={variant as FriesVariant} />
@@ -219,9 +214,9 @@ function Art({ variant }: { variant: DishVariant }) {
 }
 
 export default function DishArt({ variant }: { variant: DishVariant }) {
-  // Mojitos have no heat layer at all, so the extra SVG is skipped rather than
-  // mounted empty.
-  const cold = variant.startsWith('mojito-')
+  // The chillers have no heat layer at all, so the extra SVG is skipped
+  // rather than mounted empty.
+  const cold = variant.startsWith('chiller-')
 
   return (
     <span className={`dish-art dish-art--${variant}${cold ? ' dish-art--cold' : ''}`}>

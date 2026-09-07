@@ -1,12 +1,13 @@
+/** Straight off the board — see src/content.ts for where the menu comes from. */
 const items = [
-  'Steamed momos',
+  'Steam momos',
   'Kurkure momos',
-  'Tandoori momos',
-  'Virgin mojitos',
+  'Afghani momos',
+  'Nine chillers',
   'Peri peri fries',
-  'Cheese burgers',
-  'Chilli garlic momos',
-  'Loaded fries',
+  'Hazy Hero burger',
+  'Chilli momos',
+  'Cheese corn momos',
 ]
 
 /**

@@ -1,35 +1,47 @@
 /**
- * A mojito in a highball, drawn to the same 100×100 box as the momo so the
+ * A chiller in a highball, drawn to the same 100×100 box as the momo so the
  * menu cards stay on one grid.
  *
  * `variant` only swaps what is in the glass — the glass, ice, mint and lime
- * are the same build every time, because they are on every drink the cart
- * pours. The cold half of the menu gets bubbles and frost instead of steam.
+ * are the same build every time, because the cart pours all nine off the same
+ * counter. The cold half of the menu gets bubbles and frost instead of steam.
+ *
+ * One variant per drink on the board, in board order.
  */
 
-export type MojitoVariant =
-  | 'mojito-classic'
-  | 'mojito-apple'
-  | 'mojito-lagoon'
-  | 'mojito-melon'
+export type ChillerVariant =
+  | 'chiller-og'
+  | 'chiller-mint'
+  | 'chiller-blue'
+  | 'chiller-mango'
+  | 'chiller-kairi'
+  | 'chiller-berry'
+  | 'chiller-berrylicious'
+  | 'chiller-pineapple'
+  | 'chiller-colada'
 
-const fills: Record<MojitoVariant, { top: string; bottom: string; fruit: string }> = {
-  'mojito-classic': { top: '#d8f3c4', bottom: '#8fd36a', fruit: '#a5d94f' },
-  'mojito-apple': { top: '#e2fa8a', bottom: '#7bc924', fruit: '#9ede2e' },
-  'mojito-lagoon': { top: '#9fe8ff', bottom: '#1f8ede', fruit: '#3fb8f0' },
-  'mojito-melon': { top: '#ffb3bd', bottom: '#e33a52', fruit: '#ff6472' },
+const fills: Record<ChillerVariant, { top: string; bottom: string; fruit: string }> = {
+  'chiller-og': { top: '#d8f3c4', bottom: '#8fd36a', fruit: '#a5d94f' },
+  'chiller-mint': { top: '#d3f7e4', bottom: '#3fc48a', fruit: '#7fe0b0' },
+  'chiller-blue': { top: '#9fe8ff', bottom: '#1f8ede', fruit: '#3fb8f0' },
+  'chiller-mango': { top: '#ffe08a', bottom: '#f08c07', fruit: '#ffb43d' },
+  'chiller-kairi': { top: '#e9fb9c', bottom: '#8fc21f', fruit: '#c6e34a' },
+  'chiller-berry': { top: '#ffb3bd', bottom: '#e33a52', fruit: '#ff6472' },
+  'chiller-berrylicious': { top: '#e3b9f7', bottom: '#7b2ec8', fruit: '#b45ce8' },
+  'chiller-pineapple': { top: '#fff3a8', bottom: '#f0bc0d', fruit: '#ffd93d' },
+  'chiller-colada': { top: '#fff8e8', bottom: '#e6cea2', fruit: '#f3e3c6' },
 }
 
 const GLASS = 'M30 26 L35 83 Q35.4 88 40 88 L60 88 Q64.6 88 65 83 L70 26 Z'
 const LIQUID = 'M33 38 L35 83 Q35.4 88 40 88 L60 88 Q64.6 88 65 83 L67 38 Z'
 
-export default function Mojito({
+export default function Chiller({
   className,
   variant,
-  idPrefix = 'mojito',
+  idPrefix = 'chiller',
 }: {
   className?: string
-  variant: MojitoVariant
+  variant: ChillerVariant
   idPrefix?: string
 }) {
   const { top, bottom, fruit } = fills[variant]

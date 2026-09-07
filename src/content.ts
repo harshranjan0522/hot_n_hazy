@@ -5,6 +5,7 @@
  */
 
 import type { DishVariant } from './components/DishArt'
+import { posCategories, posItems } from './menu.data'
 
 /* --- verified listing details ------------------------------------------- */
 export const business = {
@@ -16,8 +17,6 @@ export const business = {
   /** From the owner's own description. Google's listing shows 5:00–9:30 PM. */
   hours: '5:30 PM – 10:00 PM',
   days: 'Monday – Sunday',
-  /** Zomato lists ~₹100 for one order; Google's per-person band is ₹1–200. */
-  priceBand: '₹100 – ₹200',
   instagram: 'https://www.instagram.com/hot.n.hazy/',
   instagramHandle: '@hot.n.hazy',
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Hot+n+Hazy+Bokaro+Steel+City',
@@ -37,166 +36,257 @@ export const ratings = [
 ] as const
 
 /* --- menu ---------------------------------------------------------------
- * Item names come from the owner's description and Google's review topics
- * (momos · afghani momos · chilli momo · peri peri momos · kurkure momos).
- * Per-item prices are intentionally absent — fill `price` in when you have the
- * real card; the sourced ₹100–200 band is shown on the section instead.
+ * The menu itself is NOT written here. Names, notes, sections and every price
+ * come straight from the counter till (POS/src/js/data.js) by way of the
+ * generated src/menu.data.ts, so the website and the board on the cart cannot
+ * drift apart. Change a price on the till, run `pnpm sync:menu`, done.
+ *
+ * Two things the website deliberately does not take from the till: prices,
+ * which belong on the board and on the counter rather than on a page that
+ * goes stale, and the Basics section — nobody comes to a momo cart to read
+ * about bottled water.
+ *
+ * What lives here is voice: which drawing a card shows, how hot it is, the
+ * line of copy under the name. Those are keyed by the till's own ids, and
+ * anything the till adds that has no entry still shows up — with plain art
+ * and a plain line — rather than quietly going missing.
  * ---------------------------------------------------------------------- */
 
-export type MenuItem = {
+export type MenuCard = {
+  id: string
+  /** The board's sub-heading above this card — "Burgers", "Make it a meal". */
+  group?: string
   name: string
+  note?: string
   blurb: string
   heat: 0 | 1 | 2 | 3
   tag?: string
-  price?: string
-  /** Which drawing the card shows. Falls back to a plain momo when unset. */
-  art?: DishVariant
+  art: DishVariant
+  /** The fillings a momo style comes in, in board order. Empty for one dish. */
+  fillings: string[]
+  /** The counter sells this in two sizes. */
+  halfOrFull: boolean
+  /** An extra the counter offers, named but not priced. */
+  addon?: string
 }
 
 export type MenuCategory = {
   id: string
   label: string
   kicker: string
-  items: MenuItem[]
+  cards: MenuCard[]
 }
 
-export const menu: MenuCategory[] = [
-  {
-    id: 'momos',
-    label: 'Momos',
-    kicker: 'The reason people cross town',
-    items: [
-      {
-        name: 'Steamed momos',
-        art: 'steamed',
-        blurb: 'Thin skin, juicy filling, straight out of the basket. The one every review starts with.',
-        heat: 0,
-        tag: 'Most loved',
-      },
-      {
-        name: 'Fried momos',
-        art: 'fried',
-        blurb: 'Same parcels, dropped in hot oil until the pleats go golden and crisp at the edges.',
-        heat: 1,
-      },
-      {
-        name: 'Kurkure momos',
-        art: 'kurkure',
-        blurb: 'Crumb-coated and deep fried — the crunch you can hear from the next table.',
-        heat: 1,
-        tag: 'Regulars order this',
-      },
-      {
-        name: 'Afghani momos',
-        art: 'afghani',
-        blurb: 'Creamy, smoky, mildly spiced gravy clinging to every fold.',
-        heat: 1,
-        tag: 'Top rated',
-      },
-      {
-        name: 'Tandoori momos',
-        art: 'tandoori',
-        blurb: 'Marinated, skewered and charred over the tandoor until the edges blister.',
-        heat: 2,
-      },
-      {
-        name: 'Chilli momos',
-        art: 'chilli',
-        blurb: 'Tossed in a glossy, garlicky chilli sauce. This is where the "hot" comes from.',
-        heat: 3,
-      },
-      {
-        name: 'Peri peri momos',
-        art: 'peri',
-        blurb: 'Dusted heavy with peri peri — tangy, salty and properly fiery.',
-        heat: 3,
-        tag: 'Top rated',
-      },
-    ],
+type Look = {
+  art: DishVariant
+  heat: 0 | 1 | 2 | 3
+  blurb: string
+  tag?: string
+}
+
+/**
+ * Momo styles. All four fillings of a style come out of the same basket and
+ * are drawn the same way, so the style is the card and the fillings are its
+ * price rows — exactly how the board reads.
+ */
+const STYLE_LOOKS: Record<string, Look> = {
+  'Steam Momo': {
+    art: 'steamed',
+    heat: 0,
+    blurb: 'Thin skin, juicy filling, straight out of the basket. The one every review starts with.',
+    tag: 'Most loved',
   },
-  {
-    id: 'mojitos',
-    label: 'Mojitos',
-    kicker: 'Something cold to fight the heat',
-    items: [
-      {
-        name: 'Classic virgin mojito',
-        art: 'mojito-classic',
-        blurb: 'Lime, mint, soda, crushed ice. The standard reset button between plates.',
-        heat: 0,
-      },
-      {
-        name: 'Green apple mojito',
-        art: 'mojito-apple',
-        blurb: 'Sharp and sweet, built on the same mint-and-lime base.',
-        heat: 0,
-      },
-      {
-        name: 'Blue lagoon',
-        art: 'mojito-lagoon',
-        blurb: 'Citrus and blue curaçao syrup over ice — the one that shows up in everyone’s photos.',
-        heat: 0,
-      },
-      {
-        name: 'Watermelon cooler',
-        art: 'mojito-melon',
-        blurb: 'Fresh watermelon, lime and a pinch of black salt.',
-        heat: 0,
-      },
-    ],
+  'Kurkure Momo': {
+    art: 'kurkure',
+    heat: 1,
+    blurb: 'Crumb-coated and deep fried — the crunch you can hear from the next table.',
+    tag: 'Regulars order this',
   },
-  {
-    id: 'fries',
-    label: 'Fries',
-    kicker: 'For the table, always',
-    items: [
-      {
-        name: 'Salted fries',
-        art: 'fries-salted',
-        blurb: 'Cut thick, fried twice, salted while still steaming.',
-        heat: 0,
-      },
-      {
-        name: 'Peri peri fries',
-        art: 'fries-peri',
-        blurb: 'Tossed hot in peri peri masala so it actually sticks.',
-        heat: 2,
-      },
-      {
-        name: 'Loaded cheese fries',
-        art: 'fries-cheese',
-        blurb: 'Molten cheese, herbs and a scatter of chilli flakes over the whole basket.',
-        heat: 1,
-      },
-    ],
+  'Peri Peri Momo': {
+    art: 'peri',
+    heat: 3,
+    blurb: 'Dusted heavy with peri peri — tangy, salty and properly fiery.',
+    tag: 'Top rated',
   },
-  {
-    id: 'burgers',
-    label: 'Burgers',
-    kicker: 'Handheld, and seriously underrated',
-    items: [
-      {
-        name: 'Veg burger',
-        art: 'burger-veg',
-        blurb: 'Crisp patty, fresh veg, house sauce in a toasted bun.',
-        heat: 0,
-      },
-      {
-        name: 'Cheese burst burger',
-        art: 'burger-cheese',
-        blurb: 'Double cheese, griddled until it runs down the side.',
-        heat: 0,
-      },
-      {
-        name: 'Spicy hazy burger',
-        art: 'burger-spicy',
-        blurb: 'Our chilli sauce, jalapeños and extra crunch. Order a mojito with it.',
-        heat: 3,
-        tag: 'House special',
-      },
-    ],
+  'Afghani Momo': {
+    art: 'afghani',
+    heat: 1,
+    blurb: 'Creamy, smoky, mildly spiced gravy clinging to every fold.',
+    tag: 'Top rated',
   },
-]
+  'Chilli Momo': {
+    art: 'chilli',
+    heat: 3,
+    blurb: 'Tossed in a glossy, garlicky chilli sauce. This is where the “hot” comes from.',
+  },
+}
+
+/** Everything else is one dish per card, keyed by the till's item id. */
+const ITEM_LOOKS: Record<string, Look> = {
+  /* chillers — flat ₹59, nine of them */
+  'c-og': {
+    art: 'chiller-og',
+    heat: 0,
+    blurb: 'Lime, mint, soda, crushed ice. The reset button between plates.',
+  },
+  'c-mint': {
+    art: 'chiller-mint',
+    heat: 0,
+    blurb: 'Mint turned all the way up — cold enough to put the chilli momos out.',
+  },
+  'c-blue': {
+    art: 'chiller-blue',
+    heat: 0,
+    blurb: 'Citrus and blue syrup over ice. The one that ends up in everyone’s photos.',
+  },
+  'c-mango': {
+    art: 'chiller-mango',
+    heat: 0,
+    blurb: 'Thick mango shaken with lime and a glass full of ice.',
+  },
+  'c-kairi': {
+    art: 'chiller-kairi',
+    heat: 0,
+    blurb: 'Raw mango and black salt. Sour first, salty after.',
+  },
+  'c-berry': {
+    art: 'chiller-berry',
+    heat: 0,
+    blurb: 'Berry and lime, light enough to finish before the momos land.',
+  },
+  'c-berrylicious': {
+    art: 'chiller-berrylicious',
+    heat: 0,
+    blurb: 'The berry one, doubled — deeper, sweeter, properly purple.',
+  },
+  'c-pineapple': {
+    art: 'chiller-pineapple',
+    heat: 0,
+    blurb: 'Pineapple and lime with a bite of black salt behind it.',
+  },
+  'c-colada': {
+    art: 'chiller-colada',
+    heat: 0,
+    blurb: 'Pineapple and coconut, poured thick. The dessert of the nine.',
+  },
+
+  /* burgers, fries and the combos */
+  'b-hero': {
+    art: 'burger-veg',
+    heat: 0,
+    blurb: 'Crisp patty, fresh salad and house sauce in a toasted bun.',
+  },
+  'b-hunter': {
+    art: 'burger-spicy',
+    heat: 1,
+    blurb: 'Chicken patty off the griddle, sauced and stacked.',
+    tag: 'House special',
+  },
+  'b-fries': {
+    art: 'fries-salted',
+    heat: 0,
+    blurb: 'Cut thick, fried twice, salted while they are still steaming.',
+  },
+  'b-peri-fries': {
+    art: 'fries-peri',
+    heat: 2,
+    blurb: 'Tossed hot in peri peri masala so it actually sticks.',
+  },
+  'b-combo-veg': {
+    art: 'burger-veg',
+    heat: 0,
+    blurb: 'Fries, the veg burger and any chiller off the board — the whole counter on one tray.',
+    tag: 'Best value',
+  },
+  'b-combo-nonveg': {
+    art: 'burger-spicy',
+    heat: 1,
+    blurb: 'Fries, the chicken burger and any chiller off the board.',
+    tag: 'Best value',
+  },
+
+}
+
+/** Used for anything the till grows that nobody has drawn yet. */
+const PLAIN: Look = {
+  art: 'steamed',
+  heat: 0,
+  blurb: 'Off the same hot counter as everything else.',
+}
+
+/**
+ * Sections the website leaves off. The till still rings them up; they just
+ * have no business on a menu people read to decide whether to walk over.
+ */
+const HIDDEN = new Set(['basics'])
+
+/** Kickers the board writes with a price in them get a price-free one here. */
+const KICKERS: Record<string, string> = {
+  chillers: 'Cool, fresh, over crushed ice',
+}
+
+/** Turns the till's flat item list into the cards the menu section renders. */
+function buildMenu(): MenuCategory[] {
+  return posCategories
+    .filter((cat) => !HIDDEN.has(cat.id))
+    .map((cat) => {
+      const cards: MenuCard[] = []
+      const styles = new Map<string, MenuCard>()
+
+      for (const item of posItems.filter((i) => i.cat === cat.id)) {
+        // a momo style: the first filling opens the card, the rest join it
+        const style = item.group && STYLE_LOOKS[item.group] ? item.group : null
+        if (style) {
+          let card = styles.get(style)
+          if (!card) {
+            card = {
+              ...STYLE_LOOKS[style],
+              id: `${cat.id}-${item.id.split('-')[1]}`,
+              name: style,
+              fillings: [],
+              halfOrFull: item.half != null,
+            }
+            styles.set(style, card)
+            cards.push(card)
+          }
+          card.fillings.push(item.name)
+          continue
+        }
+
+        cards.push({
+          ...(ITEM_LOOKS[item.id] ?? PLAIN),
+          id: item.id,
+          group: item.group ?? undefined,
+          name: item.name,
+          note: item.note ?? undefined,
+          addon: item.addon?.name,
+          fillings: [],
+          halfOrFull: item.half != null,
+        })
+      }
+
+      return {
+        id: cat.id,
+        label: cat.label,
+        kicker: KICKERS[cat.id] ?? cat.kicker,
+        cards,
+      }
+    })
+}
+
+export const menu: MenuCategory[] = buildMenu()
+
+/**
+ * The one number the page does quote: what a visit costs, end to end, read
+ * off the same card. Cheapest food on the board (a half plate of veg steam)
+ * up to the dearest full plate. Bottled drinks sit outside it.
+ */
+export const priceBand = (() => {
+  const food = posItems.filter((i) => i.cat !== 'basics')
+  const low = Math.min(...food.map((i) => i.half ?? i.full))
+  const high = Math.max(...food.map((i) => i.full))
+  return `₹${low} – ₹${high}`
+})()
 
 /* --- testimonials --------------------------------------------------------
  * Verbatim from the Google Business reviews for Hot n' Hazy, Bokaro Steel City

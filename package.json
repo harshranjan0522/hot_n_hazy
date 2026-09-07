@@ -6,8 +6,10 @@
   "packageManager": "pnpm@11.1.3",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "pnpm sync:menu && tsc --noEmit && vite build",
     "preview": "vite preview",
+    "sync:menu": "node tools/sync-menu.mjs",
+    "check-menu": "node tools/sync-menu.mjs --check",
     "typecheck": "tsc --noEmit",
     "check-env": "node tools/check-env.mjs"
   },
