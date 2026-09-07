@@ -454,40 +454,46 @@ button:disabled {
 
 .modal__sizes {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.6rem;
+  gap: 0.5rem;
   margin-top: 0.5rem;
 }
 
-.sizebtn {
+/* One row per size, each with its own counter, because a half and a full are
+   two separate lines on the bill — picking one must never replace the other. */
+.sizeline {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.2rem;
-  min-height: 4.5rem;
+  gap: 0.75rem;
+  padding: 0.55rem 0.55rem 0.55rem 1rem;
   border-radius: var(--radius);
   background: #ffffff08;
   border: 2px solid var(--line);
 }
 
-.sizebtn.is-on {
+.sizeline.is-on {
   background: linear-gradient(180deg, #ff8a0b26, #dd201526);
   border-color: var(--orange);
 }
 
-.sizebtn__label {
+.sizeline__what {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-right: auto;
+}
+
+.sizeline__label {
   font-family: var(--font-display);
   font-size: 1.3rem;
   text-transform: uppercase;
 }
 
-.sizebtn__price {
-  font-size: 0.9rem;
+.sizeline__price {
+  font-size: 0.85rem;
   color: var(--cream-dim);
 }
 
-.sizebtn.is-on .sizebtn__price {
+.sizeline.is-on .sizeline__price {
   color: var(--amber);
 }
 
@@ -598,6 +604,29 @@ button:disabled {
 .stepper--sm .stepper__value {
   min-width: 2rem;
   font-size: 1.2rem;
+}
+
+/* The counter that sits inside a size row: no shell of its own, since the row
+   already is one. */
+.stepper--row {
+  margin: 0;
+  padding: 0;
+  gap: 0.35rem;
+  background: none;
+  border: 0;
+}
+
+.stepper--row .stepper__btn {
+  width: 2.9rem;
+  height: 2.9rem;
+  background: #ffffff14;
+  font-size: 1.5rem;
+}
+
+.stepper--row .stepper__value {
+  flex: 0 0 auto;
+  min-width: 2.4rem;
+  font-size: 1.6rem;
 }
 
 .modal__sum {

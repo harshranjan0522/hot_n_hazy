@@ -117,7 +117,8 @@ sheet rather than a native dialog.
 3. **New order** — four sections stacked vertically, each a horizontal track you
    swipe sideways. Momos and Burgers & Fries are split into the same panels the
    menu board uses (Steam Momo → Veg / Paneer / Cheese Corn / Chicken).
-   Tapping an item opens the popup: half/full → add-ons → quantity → Done.
+   Tapping an item opens the popup: a quantity per size (half and full each
+   have their own counter, so both can go on in one visit) → add-ons → Done.
    Cheese (+₹15) is offered only on Hazy Hero and Hazy Hunter.
    The green **Proceed** button appears bottom-right once anything is in the
    cart; the chip beside it opens the cart for edits.
